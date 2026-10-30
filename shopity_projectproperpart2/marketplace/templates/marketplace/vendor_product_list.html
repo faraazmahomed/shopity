@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Products - {{ store.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Manage Products for {{ store.name }}</h2>
+    <a href="{% url 'vendor_product_add' %}" class="btn btn-success">+ Add New Product</a>
+</div>
+
+{% if products %}
+    <div class="table-responsive bg-white shadow-sm rounded p-3">
+        <table class="table table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Image</th>
+                    <th>Title</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Status</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                    <tr>
+                        <td>
+                            {% if product.image %}
+                                <img src="{{ product.image.url }}" alt="{{ product.title }}" style="width: 50px; height: 50px; object-fit: cover;" class="rounded">
+                            {% else %}
+                                <span class="badge bg-secondary">No Image</span>
+                            {% endif %}
+                        </td>
+                        <td class="fw-bold">{{ product.title }}</td>
+                        <td>${{ product.price }}</td>
+                        <td>
+                            {% if product.stock_quantity > 0 %}
+                                <span class="badge bg-info text-dark">{{ product.stock_quantity }} in stock</span>
+                            {% else %}
+                                <span class="badge bg-danger">Out of stock</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if product.is_active %}
+                                <span class="badge bg-success">Active</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Disabled</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <a href="{% url 'vendor_product_edit' product.id %}" class="btn btn-sm btn-outline-primary me-1">Edit</a>
+                            <a href="{% url 'vendor_product_delete' product.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="alert alert-info text-center py-4">
+        <h4>No products found</h4>
+        <p>You haven't added any products to your store yet.</p>
+        <a href="{% url 'vendor_product_add' %}" class="btn btn-primary mt-2">Add Your First Product</a>
+    </div>
+{% endif %}
+{% endblock %}

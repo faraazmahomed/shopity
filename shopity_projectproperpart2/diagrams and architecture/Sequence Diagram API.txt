@@ -1,0 +1,15 @@
+[Client / Frontend]          [Django REST API / DRF]          [Database (MariaDB)]
+       |                                |                               |
+       |--- 1. POST /api/token/auth --->|                               |
+       |    (Send Username/Password)    |--- 2. Validate Credentials -->|
+       |                                |<-- 3. Return Auth Token ------|
+       |<-- 4. Return Access Token -----|                               |
+       |                                |                               |
+       |--- 5. GET /api/products/ ----> |                               |
+       |    (Header: Bearer Token)      |--- 6. Query Products -------->|
+       |                                |<-- 7. Return Product List ----|
+       |<-- 8. Return JSON Data --------|                               |
+       |                                |                               |
+       |--- 9. POST /api/orders/ ------>|                               |
+       |    (Checkout Cart Items)       |--- 10. Process Order & Email->|
+       |<-- 11. Return Invoice JSON ----|                               |
