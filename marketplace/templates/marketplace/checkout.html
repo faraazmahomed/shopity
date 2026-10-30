@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Checkout - Shopity{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width: 700px;">
+    <h2 class="mb-4">Checkout</h2>
+    <div class="card shadow-sm">
+        <div class="card-body p-4">
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="shipping_address" class="form-label">Shipping Address</label>
+                    <textarea class="form-control" id="shipping_address" name="shipping_address" rows="3" required placeholder="Enter your full street address..."></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="payment_method" class="form-label">Payment Method</label>
+                    <select class="form-select" id="payment_method" name="payment_method">
+                        <option value="card">Credit / Debit Card</option>
+                        <option value="eft">EFT / Bank Transfer</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-success w-100 btn-lg mt-3">Place Order</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

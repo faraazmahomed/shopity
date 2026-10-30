@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Order Details #{{ order_item.order.pk }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Order #{{ order_item.order.pk }} Details</h4>
+                <a href="{% url 'vendor_order_list' %}" class="btn btn-outline-light btn-sm">Back to Orders</a>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-sm-6">
+                        <p class="mb-1 text-muted">Customer:</p>
+                        <h5 class="fw-bold">{{ order_item.order.user.username }}</h5>
+                    </div>
+                    <div class="col-sm-6">
+                        <p class="mb-1 text-muted">Order Date:</p>
+                        <h5 class="fw-bold">{{ order_item.order.created_at|date:"F d, Y - H:i" }}</h5>
+                    </div>
+                </div>
+
+                <hr>
+
+                <h5 class="mb-3">Purchased Item from Your Store</h5>
+                <ul class="list-group mb-4">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="my-0">{{ order_item.product.name }}</h6>
+                            <small class="text-muted">Quantity: {{ order_item.quantity }} | Unit Price: ${{ order_item.price }}</small>
+                        </div>
+                        <span class="fw-bold">${% widthratio order_item.price 1 order_item.quantity %}</span>
+                    </li>
+                </ul>
+
+                <hr>
+
+                <h5 class="mb-3">Update Order Status</h5>
+                <form method="post" class="row g-3 align-items-center">
+                    {% csrf_token %}
+                    <div class="col-auto">
+                        <select name="status" class="form-select">
+                            <option value="pending" {% if order_item.order.status == 'pending' %}selected{% endif %}>Pending</option>
+                            <option value="processing" {% if order_item.order.status == 'processing' %}selected{% endif %}>Processing</option>
+                            <option value="completed" {% if order_item.order.status == 'completed' %}selected{% endif %}>Completed</option>
+                            <option value="cancelled" {% if order_item.order.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-primary">Update Status</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
