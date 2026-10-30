@@ -1,0 +1,35 @@
+{% extends 'marketplace/base.html' %}
+
+{% block title %}Reddit Feed | Shopity Marketplace{% endblock %}
+
+{% block content %}
+<div class="row my-4">
+    <div class="col-md-12">
+        <h2 class="mb-4">Reddit Feed Integration</h2>
+        <p class="text-muted">Live posts and community discussions loaded from the Reddit API.</p>
+        
+        <hr class="mb-4">
+
+        {% if posts %}
+            <div class="list-group">
+                {% for post in posts %}
+                    <div class="list-group-item list-group-item-action flex-column align-items-start mb-3 shadow-sm rounded">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">
+                                <a href="{{ post.url }}" target="_blank" class="text-decoration-none">{{ post.title }}</a>
+                            </h5>
+                            <small class="text-muted">Score: {{ post.score }}</small>
+                        </div>
+                        <p class="mb-1 text-secondary">Posted by u/{{ post.author }} in r/{{ post.subreddit }}</p>
+                        <small class="text-muted">Comments: {{ post.num_comments }}</small>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info" role="alert">
+                No posts found or unable to fetch Reddit feed at this time.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

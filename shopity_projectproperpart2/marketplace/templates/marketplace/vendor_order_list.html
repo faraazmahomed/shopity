@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Incoming Orders - {{ store.name }}{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h2>Incoming Orders for {{ store.name }}</h2>
+    <p class="text-muted">Manage and fulfill customer purchases containing your store's products.</p>
+</div>
+
+{% if order_items %}
+    <div class="table-responsive bg-white shadow-sm rounded p-3">
+        <table class="table table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Order #</th>
+                    <th>Customer</th>
+                    <th>Product</th>
+                    <th>Qty</th>
+                    <th>Line Total</th>
+                    <th>Order Status</th>
+                    <th>Date</th>
+                    <th class="text-end">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order_items %}
+                    <tr>
+                        <td class="fw-bold">#{{ item.order.pk }}</td>
+                        <td>{{ item.order.user.username }}</td>
+                        <td>{{ item.product.name }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>${% widthratio item.price 1 item.quantity %}</td>
+                        <td>
+                            {% if item.order.status == 'pending' %}
+                                <span class="badge bg-warning text-dark">Pending</span>
+                            {% elif item.order.status == 'processing' %}
+                                <span class="badge bg-info text-dark">Processing</span>
+                            {% elif item.order.status == 'completed' %}
+                                <span class="badge bg-success">Completed</span>
+                            {% else %}
+                                <span class="badge bg-danger">Cancelled</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ item.order.created_at|date:"M d, Y H:i" }}</td>
+                        <td class="text-end">
+                            <a href="{% url 'vendor_order_detail' item.id %}" class="btn btn-sm btn-outline-primary">View / Update</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="alert alert-info text-center py-4">
+        <h4>No orders received yet</h4>
+        <p>When customers purchase products from your store, they will appear here.</p>
+    </div>
+{% endif %}
+{% endblock %}
