@@ -1,0 +1,21 @@
+class shoe:
+
+    def view_all(self, country, code, product, cost, quantity):
+    
+        '''
+            This function will iterate over the shoes list and
+            print the details of the shoes returned from the __str__
+            function. Optional: you can organise your data in a table format
+            by using Python’s tabulate module.
+        '''
+
+        with open("inventory.txt") as file:
+            next(file)
+            self.country = country
+            self.code = code
+            self.product = product
+            self.cost = cost
+            self.quantity = quantity
+        return (f"country: {self.country} code: {self.code} "
+                f"product {self.product} cost: {self.cost} "
+                f"quantity: {self.quantity}")

@@ -1,0 +1,70 @@
+================================================================================
+TASK MANAGER APPLICATION - MODEL-VIEW-CONTROLLER (MVC) SPECIFICATION
+================================================================================
+
+1. MODEL (Data Persistence, Data Logic & Business Rules)
+--------------------------------------------------------------------------------
+Responsibilities:
+- Encapsulates core data structures, state, and business rules of the application.
+- Handles all file I/O operations on persistent storage (user.txt, tasks.txt, 
+  task_overview.txt, and user_overview.txt).
+- Performs data parsing, updates, and metric calculations independently of the 
+  user interface.
+
+Specific Application Concerns:
+* User Model:
+  - Ensures default files exist on initialization (ensure_files_exist).
+  - Reads and parses 'user.txt' into memory dictionaries {username: password} (load_users).
+  - Appends new user records to 'user.txt' upon successful registration.
+* Task Model:
+  - Reads and parses delimited records from 'tasks.txt' into task dictionaries (load_tasks).
+  - Overwrites 'tasks.txt' with updated task lists when tasks are edited or deleted (save_tasks).
+  - Handles task state changes (marking completed, updating assigned user, updating due date).
+  - Safely parses and validates date strings against defined formats (%d %b %Y) (parse_date).
+* Report & Analytics Model:
+  - Computes total task counts, completed tasks, uncompleted tasks, and overdue tasks.
+  - Calculates per-user task statistics and system percentages.
+  - Generates and writes formatted summary reports to 'task_overview.txt' and 'user_overview.txt'.
+
+
+2. VIEW (Presentation Layer & Output Formatting)
+--------------------------------------------------------------------------------
+Responsibilities:
+- Manages all visual presentation and output formatting delivered to the user.
+- Displays navigation menus, input prompts, formatted data screens, and reports.
+- Renders feedback messages (success, error, and system warnings).
+- Contains zero direct file manipulation logic or data storage state.
+
+Specific Application Concerns:
+* Navigation Displays:
+  - Renders the Admin Menu (options: r, a, va, vm, vc, del, ds, gr, e).
+  - Renders the Standard User Menu (options: a, va, vm, e).
+* Data Formatting:
+  - Formats individual task dictionaries into structured textual blocks with borders (print_task_formatted).
+  - Displays formatted task lists for 'View All', 'View My Tasks', and 'View Completed Tasks'.
+  - Outputs the contents of overview report files to the console screen.
+* User Feedback & Prompts:
+  - Displays user prompts for inputs (e.g., username, password, task title, due dates).
+  - Renders operation feedback (e.g., "Task added successfully!", "Passwords do not match").
+  - Displays cancellation alerts (e.g., "Registration cancelled").
+
+
+3. CONTROLLER (Application Flow, Request Routing & Authorization)
+--------------------------------------------------------------------------------
+Responsibilities:
+- Acts as the intermediary between the View and Model components.
+- Captures user input from the console and routes requests to corresponding functions.
+- Enforces authentication and role-based access control (Admin vs. Standard User).
+- Manages application control loops and multi-step user interaction flows.
+
+Specific Application Concerns:
+* Authentication & Access Control:
+  - Manages the login loop, verifying user credentials against the User Model.
+  - Inspects user identity ('admin' vs. regular user) to determine menu access and permissions.
+  - Restricts unauthorized users from accessing admin features (user registration, deletion, statistics, report generation).
+* Workflow Management:
+  - Executes main menu loops and routes user choices ('r', 'a', 'va', 'vm', 'vc', 'del', 'gr', 'ds', 'e').
+  - Coordinates interactive multi-step input flows (e.g., gathering new task details step-by-step).
+  - Intercepts cancellation commands ('-1') to cleanly abort operations and return to main navigation.
+  - Coordinates report retrieval by instructing the Model to generate reports if overview files are missing.
+================================================================================

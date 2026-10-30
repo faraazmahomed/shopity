@@ -1,0 +1,28 @@
+====================================================================================================
+TASK MANAGER APPLICATION - FEATURE VS. ENTITY CRUD MATRIX
+====================================================================================================
+
+LEGEND:
+  C = Create  (Creates new persistent data records/files)
+  R = Read    (Reads or queries persistent data records/files)
+  U = Update  (Modifies existing persistent data records/files)
+  D = Delete  (Removes persistent data records/files)
+  - = None    (No direct operation performed on entity)
+
+----------------------------------------------------------------------------------------------------
+FUNCTION / OPERATION         MODULE / FUNCTION       USER DATA    TASK DATA    TASK REPORT   USER REPORT
+                                                     (user.txt)   (tasks.txt)  (task_...txt) (user_...txt)
+----------------------------------------------------------------------------------------------------
+System Initialization        ensure_files_exist()    C            C            -             -
+Authentication / Login       main() / load_users()   R            -            -             -
+Register New User            reg_user()              C            -            -             -
+Add New Task                 add_task()              R            C            -             -
+View All Tasks               view_all()              -            R            -             -
+View My Tasks (Select)       view_mine()             -            R            -             -
+Mark Task Completed          view_mine()             -            U            -             -
+Edit Task (Assignee/Due)     view_mine()             R            U            -             -
+View Completed Tasks         view_completed()        -            R            -             -
+Delete Task                  delete_task()           -            D            -             -
+Generate Reports             generate_reports()      R            R            C / U         C / U
+Display Statistics           display_statistics()    -            -            R             R
+====================================================================================================

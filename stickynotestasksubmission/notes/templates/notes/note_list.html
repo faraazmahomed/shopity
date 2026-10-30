@@ -1,0 +1,28 @@
+{% extends 'notes/base.html' %}
+
+{% block title %}My Notes - Sticky Notes{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>My Sticky Notes</h1>
+    <a href="{% url 'notes:note_create' %}" class="btn btn-primary">+ Add New Note</a>
+</div>
+
+<div class="notes-grid">
+    {% for note in notes %}
+        <div class="sticky-note note-yellow">
+            <h2><a href="{% url 'notes:note_detail' note.pk %}">{{ note.title }}</a></h2>
+            <p>{{ note.content|truncatewords:25 }}</p>
+            <div class="note-actions">
+                <a href="{% url 'notes:note_update' note.pk %}" class="btn-sm">Edit</a>
+                <a href="{% url 'notes:note_delete' note.pk %}" class="btn-sm btn-danger">Delete</a>
+            </div>
+        </div>
+    {% empty %}
+        <div class="empty-state">
+            <p>No sticky notes found yet. Get started by creating your first one!</p>
+            <a href="{% url 'notes:note_create' %}" class="btn btn-primary">Create Note</a>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

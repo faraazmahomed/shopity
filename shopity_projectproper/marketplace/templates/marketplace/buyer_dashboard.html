@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Buyer Dashboard - Shopity Marketplace{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2>Buyer Dashboard</h2>
+        <p class="text-muted">Welcome back, {{ user.username }}! Here is an overview of your recent purchases and account details.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">My Order History</h5>
+            </div>
+            <div class="card-body">
+                {% if orders %}
+                    <div class="table-responsive">
+                        <table class="table table-striped align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Date</th>
+                                    <th>Total Amount</th>
+                                    <th>Status</th>
+                                    <th>Shipping Address</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in orders %}
+                                    <tr>
+                                        <td>#{{ order.id }}</td>
+                                        <td>{{ order.created_at }}</td>
+                                        <td>R{{ order.total_amount }}</td>
+                                        <td><span class="badge bg-secondary">{{ order.get_status_display }}</span></td>
+                                        <td>{{ order.shipping_address|truncatechars:40 }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted mb-0">You have not placed any orders yet. Browse our catalog to start shopping!</p>
+                    <a href="{% url 'home' %}" class="btn btn-outline-primary mt-3">Browse Products</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

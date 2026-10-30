@@ -1,0 +1,211 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Writing Desk | My Favorite Hobby</title>
+  <style>
+    /* 1. FONT FAMILY: Set global font family across the entire page */
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      max-width: 800px;
+      margin: 0 auto;
+      
+      /* 4. BACKGROUND COLOR: Page-wide background */
+      background-color: #f7fafc;
+      
+      /* 3. PARAGRAPH / TEXT COLOR: High contrast default text */
+      color: #2d3748;
+      
+      /* 7. MARGIN & PADDING: Spacing around the page body */
+      padding: 30px 20px;
+    }
+
+    /* 5. TEXT ALIGNMENT: Centered header layout */
+    header {
+      text-align: center;
+      background-color: #ffffff;
+      
+      /* 7. MARGIN & PADDING: Internal padding and bottom margin */
+      padding: 24px;
+      margin-bottom: 24px;
+      border-bottom: 3px solid #2b6cb0;
+      border-radius: 8px;
+    }
+
+    /* 2. HEADINGS COLOR & SIZE HIERARCHY */
+    h1 {
+      color: #1a365d;         /* Heading 1 color */
+      font-size: 2.2rem;       /* Visual hierarchy: Largest */
+      margin-bottom: 8px;
+      text-align: center;      /* 5. TEXT ALIGNMENT */
+    }
+
+    h2 {
+      color: #2b6cb0;         /* Heading 2 color */
+      font-size: 1.5rem;       /* Visual hierarchy: Medium */
+      margin-top: 20px;
+      margin-bottom: 12px;     /* 7. MARGIN & PADDING */
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 6px;
+    }
+
+    h3 {
+      color: #2d3748;         /* Heading 3 color */
+      font-size: 1.2rem;       /* Visual hierarchy: Smaller */
+      margin-bottom: 8px;
+    }
+
+    /* 3. PARAGRAPH TEXT COLOR, MARGIN, & PADDING */
+    p {
+      color: #4a5568;          /* Accessible, contrasting body color */
+      font-size: 1rem;
+      margin-bottom: 16px;     /* 7. MARGIN & PADDING */
+      text-align: left;        /* 5. TEXT ALIGNMENT */
+    }
+
+    /* 8. LINK STYLING */
+    nav ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 16px 0 0 0;
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    nav a {
+      color: #2b6cb0;          /* Link color */
+      text-decoration: none;   /* Removed default underline */
+      font-weight: bold;
+      padding: 6px 12px;
+      border-radius: 4px;
+      background-color: #edf2f7;
+    }
+
+    nav a:hover {
+      color: #ffffff;
+      background-color: #2b6cb0;
+      text-decoration: underline; /* Added underline on hover for visibility */
+    }
+
+    /* 4. BACKGROUND COLOR: Card sections */
+    article, figure {
+      background-color: #ffffff;
+      padding: 20px;           /* 7. MARGIN & PADDING */
+      margin-bottom: 20px;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+    }
+
+    /* 6. BOLD & ITALICS STYLING */
+    strong {
+      color: #1a365d;          /* Styled bold text */
+      font-weight: bold;
+    }
+
+    em, blockquote {
+      font-style: italic;      /* Styled italic text */
+      color: #2d3748;
+    }
+
+    blockquote {
+      border-left: 4px solid #2b6cb0;
+      padding-left: 16px;
+      margin: 12px 0;
+    }
+
+    /* 4. BACKGROUND COLOR: Aside box */
+    aside {
+      background-color: #ebf8ff;
+      border-left: 4px solid #3182ce;
+      padding: 16px 20px;      /* 7. MARGIN & PADDING */
+      margin-top: 24px;
+      margin-bottom: 24px;
+      border-radius: 0 6px 6px 0;
+    }
+
+    /* 5. TEXT ALIGNMENT: Centered footer */
+    footer {
+      text-align: center;
+      border-top: 1px solid #cbd5e0;
+      padding-top: 16px;
+      margin-top: 32px;
+    }
+
+    footer p {
+      text-align: center;      /* 5. TEXT ALIGNMENT */
+      font-size: 0.875rem;
+      color: #718096;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>The Art of Creative Writing</h1>
+    <p><em>Exploring imagination through words</em></p>
+    <nav>
+      <ul>
+        <li><a href="#about">About My Hobby</a></li>
+        <li><a href="#genres">Favorite Genres</a></li>
+        <li><a href="#tips">Writing Tips</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section id="about">
+      <h2>Why I Love Writing</h2>
+      <p>
+        Writing allows me to construct entire worlds, explore complex human 
+        emotions, and articulate thoughts that are often difficult to express 
+        out loud. It is both a <strong>peaceful retreat</strong> and a <strong>powerful creative outlet</strong>.
+      </p>
+      
+      <figure>
+        <blockquote cite="https://www.stephenking.com">
+          "Quiet people have the loudest minds, and writing gives them a voice."
+        </blockquote>
+        <figcaption>— <em>Inspired by classic literature quotes</em></figcaption>
+      </figure>
+    </section>
+
+    <section id="genres">
+      <h2>Genres I Enjoy Crafting</h2>
+      
+      <article>
+        <h3>Short Fiction</h3>
+        <p>
+          Short stories force precision. Every sentence must carry weight, 
+          making it an ideal space to practice <strong>character development</strong> and <strong>plot pacing</strong>.
+        </p>
+      </article>
+
+      <article>
+        <h3>Personal Essays</h3>
+        <p>
+          Reflective writing helps process life experiences, capturing <em>fleeting moments in time</em> through prose.
+        </p>
+      </article>
+    </section>
+
+    <aside id="tips">
+      <h3>Writing Tip of the Day</h3>
+      <p>
+        <strong>Show, Don't Tell:</strong> Instead of saying a character is nervous, 
+        describe their <em>trembling hands</em> or <em>tapping foot</em>.
+      </p>
+    </aside>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 Creative Writing Showcase. Built with Semantic HTML5.</p>
+  </footer>
+
+</body>
+</html>
+
+```

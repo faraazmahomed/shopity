@@ -1,0 +1,20 @@
+{% extends 'notes/base.html' %}
+
+{% block title %}Delete Note - Sticky Notes{% endblock %}
+
+{% block content %}
+<div class="delete-container">
+    <div class="sticky-note note-yellow delete-card">
+        <h1>Delete Note</h1>
+        <p>Are you sure you want to delete the note <strong>"{{ object.title }}"</strong>? This action cannot be undone.</p>
+        
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-actions">
+                <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                <a href="{% url 'notes:note_detail' object.pk %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

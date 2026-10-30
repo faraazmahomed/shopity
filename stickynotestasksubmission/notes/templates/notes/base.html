@@ -1,0 +1,29 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sticky Notes App{% endblock %}</title>
+    <!-- Centralized stylesheet with cache-buster -->
+    <link rel="stylesheet" href="{% static 'notes/css/style.css' %}?v=1.1">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <nav class="navbar">
+                <a href="{% url 'notes:home' %}" class="nav-brand">Sticky Notes</a>
+                <div class="nav-links">
+                    <a href="{% url 'notes:note_list' %}" class="nav-link">All Notes</a>
+                    <a href="{% url 'notes:note_create' %}" class="btn-nav">+ New Note</a>
+                </div>
+            </nav>
+        </header>
+
+        <main class="main-content">
+            {% block content %}
+            {% endblock %}
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{% extends 'notes/base.html' %}
+
+{% block title %}Welcome - Sticky Notes{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <h1>Welcome to Sticky Notes</h1>
+    <p>Capture your thoughts, manage tasks, and organize your ideas cleanly in one place.</p>
+    <div class="hero-actions">
+        <a href="{% url 'notes:note_list' %}" class="btn btn-primary">View My Notes</a>
+        <a href="{% url 'notes:note_create' %}" class="btn btn-secondary">Create a Note</a>
+    </div>
+</div>
+{% endblock %}

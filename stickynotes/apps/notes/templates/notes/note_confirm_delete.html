@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Delete Note</title>
+    <link href="https://cdn.jsdelivr.net/style.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container text-center mt-5" style="max-width: 450px;">
+    <div class="card p-4 shadow-sm border-0">
+        <h3 class="text-danger mb-3">Delete Note?</h3>
+        <p>Are you sure you want to delete <strong>"{{ note.title }}"</strong>? This action cannot be undone.</p>
+        
+        <form method="POST">
+            {% csrf_token %}
+            <div class="d-flex justify-content-center gap-2 mt-4">
+                <a href="{% url 'note_list' %}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-danger">Delete</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

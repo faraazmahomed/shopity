@@ -1,0 +1,24 @@
+task_manager_project/
+│
+├── models/
+│   ├── __init__.py
+│   ├── user.py
+│   ├── task.py
+│   ├── storage.py
+│   └── report.py
+│
+├── views/
+│   ├── __init__.py
+│   └── cli_view.py
+│
+├── controllers/
+│   ├── __init__.py
+│   └── task_controller.py
+│
+├── tests/
+│   ├── __init__.py
+│   └── test_task_manager.py
+│
+├── .flake8
+├── main.py
+└── README.md

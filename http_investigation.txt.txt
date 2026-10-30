@@ -1,0 +1,291 @@
+http_investigation.txt
+
+Task 1
+
+curl -v https://postman-echo.com/get
+VERBOSE: GET with 0-byte payload
+VERBOSE: received 240-byte response of content type application/json; charset=utf-8
+StatusCode        : 200
+StatusDescription : OK
+Content           : {"args":{},"headers":{"host":"postman-echo.com","accept-encoding":"gzip, 
+                    br","user-agent":"Mozilla/5.0 (Windows NT; Windows NT 10.0; en-ZA) 
+                    WindowsPowerShell/5.1.26100.8875","x-forwarded-proto":"https...
+RawContent        : HTTP/1.1 200 OK
+                    Connection: keep-alive
+                    vary: Accept-Encoding
+                    x-envoy-upstream-service-time: 12
+                    cf-cache-status: DYNAMIC
+                    Content-Length: 240
+                    Content-Type: application/json; charset=utf-8
+                    Date: S...
+Forms             : {}
+Headers           : {[Connection, keep-alive], [vary, Accept-Encoding], [x-envoy-upstream-service-time, 12], 
+                    [cf-cache-status, DYNAMIC]...}
+Images            : {}
+InputFields       : {}
+Links             : {}
+ParsedHtml        : mshtml.HTMLDocumentClass
+RawContentLength  : 240
+
+
+○ Request headers (what the client sends). 
+
+Content           : {"args":{},"headers":{"host":"postman-echo.com","accept-encoding":"gzip, 
+                    br","user-agent":"Mozilla/5.0 (Windows NT; Windows NT 10.0; en-ZA) 
+                    WindowsPowerShell/5.1.26100.8875","x-forwarded-proto":"https...
+
+○ Response headers (what the server sends back). 
+HTTP/1.1 200 OK
+                    Connection: keep-alive
+                    vary: Accept-Encoding
+                    x-envoy-upstream-service-time: 12
+                    cf-cache-status: DYNAMIC
+                    Content-Length: 240
+                    Content-Type: application/json; charset=utf-8
+                    Date: S...
+
+
+○ HTTP status code. 
+
+StatusCode        : 200
+StatusDescription : OK
+
+
+○ Connection workflow (how the request and response are exchanged). 
+{[Connection, keep-alive], [vary, Accept-Encoding], [x-envoy-upstream-service-time, 12], 
+                    [cf-cache-status, DYNAMIC]...}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Task 2
+
+Invoke-WebRequest -Uri https://postman-echo.com/get -Verbose                
+VERBOSE: GET with 0-byte payload                                                                                    
+VERBOSE: received 240-byte response of content type application/json; charset=utf-8
+
+Security Warning: Script Execution Risk
+Invoke-WebRequest parses the content of the web page. Script code in the web page might be run when the page is 
+parsed.                                                                                                             
+      RECOMMENDED ACTION:                                                                                           
+      Use the -UseBasicParsing switch to avoid script code execution.                                               
+                                                                                                                    
+      Do you want to continue?
+    
+[Y] Yes  [A] Yes to All  [N] No  [L] No to All  [S] Suspend  [?] Help (default is "N"): A
+
+
+StatusCode        : 200
+StatusDescription : OK
+Content           : {"args":{},"headers":{"host":"postman-echo.com","user-agent":"Mozilla/5.0 (Windows NT; Windows 
+                    NT 10.0; en-ZA) 
+                    WindowsPowerShell/5.1.26100.8875","x-forwarded-proto":"https","accept-encoding":"gzip, br...
+RawContent        : HTTP/1.1 200 OK
+                    Connection: keep-alive
+                    vary: Accept-Encoding
+                    x-envoy-upstream-service-time: 6
+                    cf-cache-status: DYNAMIC
+                    Content-Length: 240
+                    Content-Type: application/json; charset=utf-8
+                    Date: Su...
+Forms             : {}
+Headers           : {[Connection, keep-alive], [vary, Accept-Encoding], [x-envoy-upstream-service-time, 6], 
+                    [cf-cache-status, DYNAMIC]...}
+Images            : {}
+InputFields       : {}
+Links             : {}
+ParsedHtml        : mshtml.HTMLDocumentClass
+RawContentLength  : 240
+
+○ Request headers (what the client sends). 
+
+Content           : {"args":{},"headers":{"host":"postman-echo.com","accept-encoding":"gzip, 
+                    br","user-agent":"Mozilla/5.0 (Windows NT; Windows NT 10.0; en-ZA) 
+                    WindowsPowerShell/5.1.26100.8875","x-forwarded-proto":"https...
+
+○ Response headers (what the server sends back). 
+HTTP/1.1 200 OK
+                    Connection: keep-alive
+                    vary: Accept-Encoding
+                    x-envoy-upstream-service-time: 12
+                    cf-cache-status: DYNAMIC
+                    Content-Length: 240
+                    Content-Type: application/json; charset=utf-8
+                    Date: S...
+
+
+○ HTTP status code. 
+
+StatusCode        : 200
+StatusDescription : OK
+
+
+○ Connection workflow (how the request and response are exchanged). 
+{[Connection, keep-alive], [vary, Accept-Encoding], [x-envoy-upstream-service-time, 12], 
+                    [cf-cache-status, DYNAMIC]...}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Method Interaction
+Invoke-WebRequest -Uri "https://postman-echo.com/post" ` -Method Post ` -ContentType "application/x-www-form-urlencoded" ` -Body "key=value"
+
+StatusCode        : 200
+StatusDescription : OK
+Content           : {"args":{},"data":"","files":{},"form":{"key":"value"},"headers":{"host":"postman-echo.com","co
+                    ntent-length":"9","accept-encoding":"gzip, 
+                    br","content-type":"application/x-www-form-urlencoded","user-a...
+RawContent        : HTTP/1.1 200 OK
+                    Connection: keep-alive
+                    vary: Accept-Encoding
+                    x-envoy-upstream-service-time: 6
+                    cf-cache-status: DYNAMIC
+                    Content-Length: 380
+                    Content-Type: application/json; charset=utf-8
+                    Date: Mo...
+Forms             : {}
+Headers           : {[Connection, keep-alive], [vary, Accept-Encoding], [x-envoy-upstream-service-time, 6], 
+                    [cf-cache-status, DYNAMIC]...}
+Images            : {}
+InputFields       : {}
+Links             : {}
+ParsedHtml        : mshtml.HTMLDocumentClass
+RawContentLength  : 380
+Invoke-WebRequest -Uri "https://postman-echo.com/post" ` -Method Post ` -ContentType "application/x-www-form-urlencoded" ` -Body "key=value"
+
+
+StatusCode        : 200
+StatusDescription : OK
+Content           : {"args":{},"data":"","files":{},"form":{"key":"value"},"headers":{"host":"postman-echo.com","co
+                    ntent-length":"9","accept-encoding":"gzip, 
+                    br","content-type":"application/x-www-form-urlencoded","user-a...
+RawContent        : HTTP/1.1 200 OK
+                    Connection: keep-alive
+                    vary: Accept-Encoding
+                    x-envoy-upstream-service-time: 5
+                    cf-cache-status: DYNAMIC
+                    Content-Length: 380
+                    Content-Type: application/json; charset=utf-8
+                    Date: Su...
+Forms             : {}
+Headers           : {[Connection, keep-alive], [vary, Accept-Encoding], [x-envoy-upstream-service-time, 5], 
+                    [cf-cache-status, DYNAMIC]...}
+Images            : {}
+InputFields       : {}
+Links             : {}
+ParsedHtml        : mshtml.HTMLDocumentClass
+RawContentLength  : 380
+
+
+● Compare how POST behaves differently from GET. 
+
+
+
+Post involves interacting with the server, and providing an input. As a result, there is a larger raw content length (380 bytes). The remainder is the same as a get request. 
+
+
+● Explain the purpose of the payload (key=value) and how it’s transmitted. 
+
+The purpose is to get input from the client. It is transmitted through the POST method. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Status code exploration 
+
+Invoke-WebRequest -Uri https://postman-echo.com/status/404 -Method Head
+Invoke-WebRequest : The remote server returned an error: (404) Not Found.
+At line:1 char:1
++ Invoke-WebRequest -Uri https://postman-echo.com/status/404 -Method He ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-WebRequest], We 
+   bException
+    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand
+
+Invoke-WebRequest -Uri https://postman-echo.com/status/403 -Method Head
+Invoke-WebRequest : The remote server returned an error: (403) Forbidden.
+At line:1 char:1
++ Invoke-WebRequest -Uri https://postman-echo.com/status/403 -Method He ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-WebRequest], We 
+   bException
+    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand
+
+404 (Not Found): Why might this occur? 
+Because it doesn’t exist
+
+
+403 (Forbidden): What does this tell you about access restrictions? 
+It returned this error because it is an http request. There might be additional permissions required, the IP might be blocked, a VPN could be active or old cookies
+
+-	Analyse how these errors are communicated in the headers 
+
+The server communicated the following:
+
+Invoke-WebRequest : The remote server returned an error: (404) Not Found.
+
+The more lengty/complex response (not plain English) is the following:
+
+    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-WebRequest], We 
+   bException
+    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand
+
+
+
+
+
+
+
+
+
+
+
+
+Document commands and observations 
+
+These are contained above. In the case of get, I was able to run both curl and invoke commands, but it returned an error for POST as I’m using Powershell. I used Powershell to run the error codes as well
+
