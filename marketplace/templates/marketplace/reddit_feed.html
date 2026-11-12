@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Django Reddit Feed - Shopity{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width: 800px;">
+    <h1 class="mb-4">r/django Community Feed</h1>
+
+    {% if posts %}
+        <div class="list-group shadow-sm">
+            {% for post in posts %}
+                <div class="list-group-item list-group-item-action p-4 mb-3 border rounded">
+                    <h5 class="mb-1">
+                        <a href="https://www.reddit.com{{ post.permalink }}" target="_blank" class="text-decoration-none">
+                            {{ post.title }}
+                        </a>
+                    </h5>
+                    <p class="text-muted small mb-0">
+                        Posted by u/{{ post.author }} | 👍 {{ post.score }} upvotes | 💬 {{ post.num_comments }} comments
+                    </p>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-warning">
+            No posts could be retrieved at this time. Please try again later.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

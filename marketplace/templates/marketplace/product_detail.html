@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} - Shopity{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width: 900px;">
+    <a href="{% url 'product_catalog' %}" class="btn btn-outline-secondary mb-3">&larr; Back to Catalog</a>
+
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body p-4">
+            <h1 class="card-title h2 mb-2">{{ product.name }}</h1>
+            <p class="text-muted mb-3">
+                Sold by <strong>{{ product.store.name }}</strong> | Category: {{ product.category.name|default:"General" }}
+            </p>
+            
+            <hr>
+
+            <div class="d-flex align-items-center justify-content-between my-3">
+                <h2 class="text-primary fw-bold mb-0">R{{ product.base_price }}</h2>
+                
+                <div class="d-flex align-items-center gap-2">
+                    {% if average_rating %}
+                        <span class="fs-5 text-warning fw-bold">★ {{ average_rating }} / 5.0</span>
+                        <span class="text-muted">({{ reviews.count }} review{{ reviews.count|pluralize }})</span>
+                    {% else %}
+                        <span class="text-muted">No reviews yet</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <p class="fs-5 text-secondary my-3">{{ product.description }}</p>
+            <p class="text-muted small">Stock Available: <strong>{{ product.stock }}</strong></p>
+
+            <form enctype="multipart/form-data" action="{% url 'cart_add' product.id %}" method="post" class="d-flex align-items-center gap-2 mt-4">
+                {% csrf_token %}
+                <input type="number" name="quantity" value="1" min="1" max="{{ product.stock }}" class="form-control" style="width: 100px;" required>
+                <button type="submit" class="btn btn-success px-4" {% if product.stock < 1 %}disabled{% endif %}>
+                    {% if product.stock < 1 %}Out of Stock{% else %}Add to Cart{% endif %}
+                </button>
+            </form>
+        </div>
+    </div>
+
+    {% if can_review %}
+    <div class="card mb-4 shadow-sm border-primary">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Write a Customer Review</h5>
+        </div>
+        <div class="card-body">
+            <form enctype="multipart/form-data" action="{% url 'add_product_review' product.id %}" method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="id_rating" class="form-label">Rating</label>
+                    {{ review_form.rating }}
+                </div>
+                <div class="mb-3">
+                    <label for="id_comment" class="form-label">Feedback</label>
+                    {{ review_form.comment }}
+                </div>
+                <button type="submit" class="btn btn-primary">Submit Review</button>
+            </form>
+        </div>
+    </div>
+    {% elif has_reviewed %}
+    <div class="alert alert-info shadow-sm">
+        Thank you! You have already submitted a review for this product.
+    </div>
+    {% elif user.is_authenticated %}
+    <div class="card mb-4 shadow-sm border-primary">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Write a Customer Review</h5>
+        </div>
+        <div class="card-body">
+            <form enctype="multipart/form-data" action="{% url 'add_product_review' product.pk %}" method="post">
+                {% csrf_token %}
+                {% if form %}
+                    {{ form.as_p }}
+                {% elif review_form %}
+                    {{ review_form.as_p }}
+                {% endif %}
+                <button type="submit" class="btn btn-primary">Submit Review</button>
+            </form>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-light border shadow-sm text-center mb-4">
+        <p class="mb-0"><a href="{% url 'login' %}">Log in</a> to leave a review.</p>
+    </div>
+    {% endif %}
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <h4 class="mb-0">Customer Reviews</h4>
+        </div>
+        <div class="card-body">
+            {% for review in reviews %}
+            <div class="border-bottom pb-3 mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <div>
+                        <strong>{{ review.user.username }}</strong>
+                        {% if review.is_verified %}
+                            <span class="badge bg-success ms-2">Verified Purchase</span>
+                        {% else %}
+                            <span class="badge bg-secondary ms-2">Unverified Review</span>
+                        {% endif %}
+                    </div>
+                    <small class="text-muted">{{ review.created_at|date:"M d, Y" }}</small>
+                </div>
+                <div class="text-warning mb-2">
+                    {% for i in "12345" %}
+                        {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}
+                    {% endfor %}
+                </div>
+                <p class="mb-0">{{ review.comment }}</p>
+            </div>
+            {% empty %}
+            <p class="text-muted mb-0">Be the first buyer to leave a review!</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

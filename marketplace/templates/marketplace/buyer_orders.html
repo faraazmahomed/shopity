@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}My Order History - Shopity{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="mb-4">My Order History</h2>
+
+    {% for order in orders %}
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <div>
+                <strong>Order #{{ order.id }}</strong>
+                <span class="text-muted ms-2">Placed on {{ order.created_at|date:"M d, Y H:i" }}</span>
+            </div>
+            <div>
+                <span class="badge bg-secondary text-uppercase">{{ order.status }}</span>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Product</th>
+                            <th>Seller Store</th>
+                            <th>Qty</th>
+                            <th>Unit Price</th>
+                            <th>Status</th>
+                            <th>Tracking Number</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in order.items.all %}
+                        <tr>
+                            <td>
+                                <strong>{{ item.product.name|default:"Product Unavailable" }}</strong>
+                            </td>
+                            <td>{{ item.product.store.name }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>R{{ item.price }}</td>
+                            <td>
+                                {% if item.item_status == "DELIVERED" %}
+                                    <span class="badge bg-success">Delivered</span>
+                                {% elif item.item_status == "SHIPPED" %}
+                                    <span class="badge bg-primary">Shipped</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">{{ item.item_status|default:"Processing" }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if item.tracking_number %}
+                                    <code>{{ item.tracking_number }}</code>
+                                {% else %}
+                                    <span class="text-muted small">Pending dispatch</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="card text-center py-5 shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title text-muted">You haven't placed any orders yet.</h5>
+            <a href="{% url 'product_catalog' %}" class="btn btn-primary mt-3">Start Shopping</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

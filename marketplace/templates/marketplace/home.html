@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Shopity Marketplace{% endblock %}
+
+{% block content %}
+<div class="p-5 mb-4 bg-white rounded-3 shadow-sm border">
+    <div class="container-fluid py-3">
+        <h1 class="display-5 fw-bold">Welcome to Shopity</h1>
+        <p class="col-md-8 fs-4 text-muted">Discover unique independent stores and quality products from multi-vendor sellers across our marketplace.</p>
+        <div class="d-flex gap-3">
+            <a class="btn btn-primary btn-lg" href="{% url 'product_catalog' %}" role="button">Browse Catalog</a>
+            <a class="btn btn-outline-secondary btn-lg" href="{% url 'reddit_feed' %}" role="button">View r/django Community Feed</a>
+        </div>
+    </div>
+</div>
+
+<h2 class="mb-4">Featured Products</h2>
+<div class="row row-cols-1 row-cols-md-4 g-4">
+    {% for product in products %}
+    <div class="col">
+        <div class="card h-100 shadow-sm">
+            {% if product.image %}
+                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+            {% else %}
+                <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 200px;">No Image</div>
+            {% endif %}
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title"><a href="{% url 'product_detail' product.pk %}" class="text-decoration-none text-dark">{{ product.name }}</a></h5>
+                <p class="card-text text-muted small">{{ product.store.name }}</p>
+                <p class="card-text fw-bold text-success mt-auto">R{{ product.base_price }}</p>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <p class="text-muted">No products available yet.</p>
+    {% endfor %}
+</div>
+{% endblock %}

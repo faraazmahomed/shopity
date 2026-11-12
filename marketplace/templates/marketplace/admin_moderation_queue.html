@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container my-5">
+    {% with products=pending_products|default:flagged_products %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Content Moderation Queue</h2>
+        <span class="badge bg-warning text-dark fs-6">
+            {{ products.count }} Flagged Item{% if products.count != 1 %}s{% endif %}
+        </span>
+    </div>
+
+    {% if products %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for product in products %}
+        <div class="col">
+            <div class="card h-100 shadow-sm border-warning">
+                <div class="card-header bg-warning bg-opacity-10 d-flex justify-content-between align-items-center">
+                    <small class="fw-bold text-dark">Store: {{ product.store.name }}</small>
+                    <span class="badge bg-danger">Flagged</span>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">
+                        R{{ product.base_price }} | Stock: {{ product.stock }}
+                    </h6>
+                    <p class="card-text text-truncate">{{ product.description }}</p>
+                    
+                    <div class="p-2 bg-light rounded border mb-3">
+                        <small class="text-danger fw-semibold d-block">Flag Reason:</small>
+                        <small class="text-muted">
+                            {{ product.flag_reason|default:"Flagged by user report or policy violation." }}
+                        </small>
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-top-0 d-flex justify-content-between gap-2 pb-3">
+                    <form enctype="multipart/form-data" action="{% url 'admin_dismiss_flag' product.id %}" method="post" class="w-50">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-secondary btn-sm w-100">
+                            Dismiss Flag
+                        </button>
+                    </form>
+
+                    <form enctype="multipart/form-data" action="{% url 'admin_delist_product' product.id %}" method="post" class="w-50">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm w-100">
+                            Delist Product
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-success text-center py-4" role="alert">
+        <h4 class="alert-heading mb-1">Queue Clear!</h4>
+        <p class="mb-0 text-muted">There are no flagged products requiring content moderation right now.</p>
+    </div>
+    {% endif %}
+    {% endwith %}
+</div>
+{% endblock %}
