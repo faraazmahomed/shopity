@@ -18,7 +18,6 @@
                     <div>
                         <h4 class="card-title text-info mb-1">{{ store.name }}</h4>
                         <p class="card-text text-muted mb-0">{{ store.description|default:"No store description provided." }}</p>
-                        <small class="text-muted">Approval Status: <span class="badge bg-success">{{ store.get_approval_status_display }}</span></small>
                     </div>
                     <div>
                         <a href="{% url 'product_create' %}" class="btn btn-success">Add New Product</a>

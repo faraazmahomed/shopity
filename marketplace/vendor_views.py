@@ -1,80 +1,172 @@
+"""
+Vendor views for the Marketplace application.
+"""
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib import messages
-from django.core.exceptions import PermissionDenied
-from .models import Store, Product
-from .forms import ProductForm
+from .models import Store, Product, OrderItem
+from .forms import ProductForm, TrackingForm
 
 
-@login_required(login_url='login')
+@login_required
 def vendor_product_list(request):
-    """Lists all products for the logged-in vendor's store."""
-    store = get_object_or_404(Store, owner=request.user)
-    products = store.products.all().order_by('-created_at') if hasattr(store, 'products') else Product.objects.filter(store=store)
-    return render(request, 'marketplace/vendor_product_list.html', {
-        'store': store,
-        'products': products
-    })
+    """Display a list of products belonging
+    to the logged-in vendor's stores.
+    """
+    stores = Store.objects.filter(owner=request.user)
+    products = Product.objects.filter(store__in=stores)
+    return render(
+        request,
+        "marketplace/vendor_product_list.html",
+        {"products": products, "stores": stores},
+    )
 
 
-@login_required(login_url='login')
-@permission_required('marketplace.add_product', raise_exception=True)
+@login_required
+@permission_required("marketplace.add_product", raise_exception=True)
 def vendor_product_add(request):
-    """Allows a vendor to add a new product to their store."""
-    store = get_object_or_404(Store, owner=request.user)
-
-    if request.method == 'POST':
+    """Handle creation of a new product by a vendor."""
+    if request.method == "POST":
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
             product = form.save(commit=False)
-            product.store = store
-            product.save()
-            messages.success(request, f"Product '{product.title if hasattr(product, 'title') else product.name}' created successfully!")
-            return redirect('vendor_product_list')
+            if product.store.owner == request.user:
+                product.save()
+                return redirect("vendor_product_list")
+            else:
+                from django.core.exceptions import PermissionDenied
+
+                raise PermissionDenied("You do not own this store.")
     else:
         form = ProductForm()
+        form.fields["store"].queryset = Store.objects.filter(owner=request.user)
 
-    return render(request, 'marketplace/vendor_product_form.html', {
-        'form': form,
-        'title': 'Add New Product'
-    })
+    return render(request, "marketplace/vendor_product_form.html", {"form": form})
 
 
-@login_required(login_url='login')
-@permission_required('marketplace.change_product', raise_exception=True)
-def vendor_product_edit(request, product_id):
-    """Allows a vendor to edit an existing product in their store."""
-    store = get_object_or_404(Store, owner=request.user)
-    product = get_object_or_404(Product, id=product_id, store=store)
+@login_required
+@permission_required("marketplace.change_product", raise_exception=True)
+def vendor_product_edit(request, pk):
+    """Handle editing an existing product within a vendor's store."""
+    product = get_object_or_404(Product, pk=pk)
 
-    if request.method == 'POST':
+    if product.store.owner != request.user:
+        from django.core.exceptions import PermissionDenied
+
+        raise PermissionDenied("You do not have permission to edit this product.")
+
+    if request.method == "POST":
         form = ProductForm(request.POST, request.FILES, instance=product)
         if form.is_valid():
             form.save()
-            messages.success(request, f"Product updated successfully!")
-            return redirect('vendor_product_list')
+            return redirect("vendor_product_list")
     else:
         form = ProductForm(instance=product)
+        form.fields["store"].queryset = Store.objects.filter(owner=request.user)
 
-    return render(request, 'marketplace/vendor_product_form.html', {
-        'form': form,
-        'product': product,
-        'title': f"Edit Product"
-    })
+    return render(
+        request,
+        "marketplace/vendor_product_form.html",
+        {"form": form, "product": product},
+    )
 
 
-@login_required(login_url='login')
-@permission_required('marketplace.delete_product', raise_exception=True)
-def vendor_product_delete(request, product_id):
-    """Allows a vendor to delete a product from their store."""
-    store = get_object_or_404(Store, owner=request.user)
-    product = get_object_or_404(Product, id=product_id, store=store)
+@login_required
+@permission_required("marketplace.delete_product", raise_exception=True)
+def vendor_product_delete(request, pk):
+    """Handle deletion of an existing product within a vendor's store."""
+    product = get_object_or_404(Product, pk=pk)
 
-    if request.method == 'POST':
+    if product.store.owner != request.user:
+        from django.core.exceptions import PermissionDenied
+
+        raise PermissionDenied("You do not have permission to delete this product.")
+
+    if request.method == "POST":
         product.delete()
-        messages.success(request, "Product was deleted.")
-        return redirect('vendor_product_list')
+        return redirect("vendor_product_list")
 
-    return render(request, 'marketplace/vendor_product_confirm_delete.html', {
-        'product': product
-    })
+    return render(
+        request, "marketplace/vendor_product_confirm_delete.html", {"product": product}
+    )
+
+
+@login_required
+def vendor_order_list(request):
+    """Display a list of orders/order items
+    associated with the logged-in vendor's stores.
+    """
+    stores = Store.objects.filter(owner=request.user)
+    order_items = OrderItem.objects.filter(product__store__in=stores).select_related(
+        "order", "product", "product__store"
+    )
+    return render(
+        request,
+        "marketplace/vendor_order_list.html",
+        {"order_items": order_items, "stores": stores},
+    )
+
+
+@login_required
+def vendor_order_detail(request, pk):
+    """Display detailed view for a specific order
+    item belonging to the vendor's store.
+    """
+    stores = Store.objects.filter(owner=request.user)
+    order_item = get_object_or_404(OrderItem, pk=pk, product__store__in=stores)
+    return render(
+        request, "marketplace/vendor_order_detail.html", {"order_item": order_item}
+    )
+
+
+@login_required
+def update_order_item_status(request, pk):
+    """Handle quick status or tracking updates for a specific order item."""
+    stores = Store.objects.filter(owner=request.user)
+    item = get_object_or_404(OrderItem, pk=pk, product__store__in=stores)
+
+    if request.method == "POST":
+        form = TrackingForm(request.POST, instance=item)
+        if form.is_valid():
+            form.save()
+            return redirect("vendor_order_list")
+    else:
+        form = TrackingForm(instance=item)
+
+    return render(
+        request, "marketplace/update_tracking.html", {"form": form, "item": item}
+    )
+
+
+@login_required
+def vendor_dashboard(request):
+    stores = Store.objects.filter(owner=request.user)
+    products = Product.objects.filter(store__in=stores)
+    order_items = OrderItem.objects.filter(product__store__in=stores).select_related(
+        "order", "product"
+    )
+    return render(
+        request,
+        "marketplace/vendor_dashboard.html",
+        {"stores": stores, "products": products, "order_items": order_items},
+    )
+
+
+@login_required
+def update_shipment_tracking(request, item_id):
+    stores = Store.objects.filter(owner=request.user)
+    item = get_object_or_404(OrderItem, id=item_id, product__store__in=stores)
+
+    if request.method == "POST":
+        form = TrackingForm(request.POST, instance=item)
+        if form.is_valid():
+            shipment = form.save(commit=False)
+            shipment.item_status = "SHIPPED"
+            shipment.save()
+            return redirect("vendor_dashboard")
+    else:
+        form = TrackingForm(instance=item)
+
+    return render(
+        request, "marketplace/update_tracking.html", {"form": form, "item": item}
+    )

@@ -1,5 +1,9 @@
+"""
+Module: services.py
+Description: Module-level docstring.
+"""
+
 from django.db import transaction
-from django.utils import timezone
 from .models import Order, OrderItem, EmailQueue, Product
 
 
@@ -13,17 +17,16 @@ def process_checkout(buyer, cart_data):
         items_to_create = []
 
         # Lock products to prevent race conditions during checkout
-        product_ids = [item['product_id'] for item in cart_data]
+        product_ids = [item["product_id"] for item in cart_data]
         products = Product.objects.select_for_update().filter(id__in=product_ids)
         product_map = {p.id: p for p in products}
 
         for item in cart_data:
-            product = product_map.get(item['product_id'])
-            qty = item['quantity']
+            product = product_map.get(item["product_id"])
+            qty = item["quantity"]
 
             if not product or product.stock < qty or not product.is_published:
-                raise ValueError(
-                    f"Product {
+                raise ValueError(f"Product {
                         product.title if product else ''} unavailable or out of stock.")
 
             product.stock -= qty
@@ -42,14 +45,14 @@ def process_checkout(buyer, cart_data):
                 store=product.store,
                 quantity=qty,
                 unit_price=price,
-                item_status='PROCESSING'
+                item_status="PROCESSING",
             )
 
         # Enqueue Email Receipt (Failure Recovery Strategy)
         EmailQueue.objects.create(
             to_email=buyer.email,
             subject=f"Order Confirmation #{order.id}",
-            message=f"Thank you for your purchase! Order total: ${order.total_amount}"
+            message=f"Thank you for your purchase! Order total: ${order.total_amount}",
         )
 
     return order
