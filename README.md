@@ -1,12 +1,20 @@
 Shopity Marketplace
 Shopity is a modular, multi-vendor e-commerce platform built with Django. It supports role-based access for buyers, vendors, and administrators, includes full product management, shopping cart, and email invoice checkout workflows.
+
 Features
-Multi-Vendor Store Management: Vendors can create stores (subject to administrative approval), manage product catalogs, and update customer order fulfillment and tracking statuses.
+
+Multi-Vendor Store Management: Vendors can create stores, manage product catalogs, and update customer order fulfillment and tracking statuses.
+
 Role-Based Views & Dashboards: Distinct interfaces and permissions for Buyers, Vendors, and Administrators.
+
 Session Shopping Cart & Checkout: Full cart management with automated order creation and email invoice generation.
-Live Reddit Integration: Displays top posts from community subreddits with error handling.
+
+Part 2 includes Live Reddit Integration: Displays top posts from community subreddits with error handling.
+
 Global Context Processors: Automated detection and template injection of vendor store status and cart state.
+
 Project Structure
+
 shopity_projectproper/
 │
 ├── functions/                 # External integration helpers (e.g., Reddit feed)
@@ -31,12 +39,18 @@ shopity_projectproper/
 ├── manage.py                  # Django management script
 ├── README.md                  # Project documentation
 └── requirements.txt           # Project dependencies
+
 Getting Started
+
 Prerequisites
+
 Python 3.10+
+
 MariaDB or MySQL Server (running locally on port 3306)
+
 pip package manager
 Git
+
 Installation & Setup
 Clone the repository and enter the project directory:
 
