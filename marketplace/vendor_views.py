@@ -1,18 +1,22 @@
-"""
-Vendor views for the Marketplace application.
-"""
+"""Vendor views for the Marketplace application."""
 
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required, permission_required
+from django.shortcuts import (
+    render,
+    redirect,
+    get_object_or_404,
+)
+from django.contrib.auth.decorators import (
+    login_required,
+    permission_required,
+)
+from django.core.exceptions import PermissionDenied
 from .models import Store, Product, OrderItem
 from .forms import ProductForm, TrackingForm
 
 
 @login_required
 def vendor_product_list(request):
-    """Display a list of products belonging
-    to the logged-in vendor's stores.
-    """
+    """Display products belonging to logged-in vendor stores."""
     stores = Store.objects.filter(owner=request.user)
     products = Product.objects.filter(store__in=stores)
     return render(
@@ -23,7 +27,9 @@ def vendor_product_list(request):
 
 
 @login_required
-@permission_required("marketplace.add_product", raise_exception=True)
+@permission_required(
+    "marketplace.add_product", raise_exception=True
+)
 def vendor_product_add(request):
     """Handle creation of a new product by a vendor."""
     if request.method == "POST":
@@ -34,35 +40,47 @@ def vendor_product_add(request):
                 product.save()
                 return redirect("vendor_product_list")
             else:
-                from django.core.exceptions import PermissionDenied
-
-                raise PermissionDenied("You do not own this store.")
+                raise PermissionDenied(
+                    "You do not own this store."
+                )
     else:
         form = ProductForm()
-        form.fields["store"].queryset = Store.objects.filter(owner=request.user)
+        form.fields["store"].queryset = (
+            Store.objects.filter(owner=request.user)
+        )
 
-    return render(request, "marketplace/vendor_product_form.html", {"form": form})
+    return render(
+        request,
+        "marketplace/vendor_product_form.html",
+        {"form": form},
+    )
 
 
 @login_required
-@permission_required("marketplace.change_product", raise_exception=True)
+@permission_required(
+    "marketplace.change_product", raise_exception=True
+)
 def vendor_product_edit(request, pk):
-    """Handle editing an existing product within a vendor's store."""
+    """Handle editing an existing store product."""
     product = get_object_or_404(Product, pk=pk)
 
     if product.store.owner != request.user:
-        from django.core.exceptions import PermissionDenied
-
-        raise PermissionDenied("You do not have permission to edit this product.")
+        raise PermissionDenied(
+            "You do not have permission to edit this product."
+        )
 
     if request.method == "POST":
-        form = ProductForm(request.POST, request.FILES, instance=product)
+        form = ProductForm(
+            request.POST, request.FILES, instance=product
+        )
         if form.is_valid():
             form.save()
             return redirect("vendor_product_list")
     else:
         form = ProductForm(instance=product)
-        form.fields["store"].queryset = Store.objects.filter(owner=request.user)
+        form.fields["store"].queryset = (
+            Store.objects.filter(owner=request.user)
+        )
 
     return render(
         request,
@@ -72,32 +90,36 @@ def vendor_product_edit(request, pk):
 
 
 @login_required
-@permission_required("marketplace.delete_product", raise_exception=True)
+@permission_required(
+    "marketplace.delete_product", raise_exception=True
+)
 def vendor_product_delete(request, pk):
-    """Handle deletion of an existing product within a vendor's store."""
+    """Handle deletion of an existing store product."""
     product = get_object_or_404(Product, pk=pk)
 
     if product.store.owner != request.user:
-        from django.core.exceptions import PermissionDenied
-
-        raise PermissionDenied("You do not have permission to delete this product.")
+        raise PermissionDenied(
+            "You do not have permission to delete this product."
+        )
 
     if request.method == "POST":
         product.delete()
         return redirect("vendor_product_list")
 
     return render(
-        request, "marketplace/vendor_product_confirm_delete.html", {"product": product}
+        request,
+        "marketplace/vendor_product_confirm_delete.html",
+        {"product": product},
     )
 
 
 @login_required
 def vendor_order_list(request):
-    """Display a list of orders/order items
-    associated with the logged-in vendor's stores.
-    """
+    """Display orders associated with vendor stores."""
     stores = Store.objects.filter(owner=request.user)
-    order_items = OrderItem.objects.filter(product__store__in=stores).select_related(
+    order_items = OrderItem.objects.filter(
+        product__store__in=stores
+    ).select_related(
         "order", "product", "product__store"
     )
     return render(
@@ -109,21 +131,25 @@ def vendor_order_list(request):
 
 @login_required
 def vendor_order_detail(request, pk):
-    """Display detailed view for a specific order
-    item belonging to the vendor's store.
-    """
+    """Display detailed view for a specific order item."""
     stores = Store.objects.filter(owner=request.user)
-    order_item = get_object_or_404(OrderItem, pk=pk, product__store__in=stores)
+    order_item = get_object_or_404(
+        OrderItem, pk=pk, product__store__in=stores
+    )
     return render(
-        request, "marketplace/vendor_order_detail.html", {"order_item": order_item}
+        request,
+        "marketplace/vendor_order_detail.html",
+        {"order_item": order_item},
     )
 
 
 @login_required
 def update_order_item_status(request, pk):
-    """Handle quick status or tracking updates for a specific order item."""
+    """Handle tracking updates for a specific order item."""
     stores = Store.objects.filter(owner=request.user)
-    item = get_object_or_404(OrderItem, pk=pk, product__store__in=stores)
+    item = get_object_or_404(
+        OrderItem, pk=pk, product__store__in=stores
+    )
 
     if request.method == "POST":
         form = TrackingForm(request.POST, instance=item)
@@ -134,28 +160,38 @@ def update_order_item_status(request, pk):
         form = TrackingForm(instance=item)
 
     return render(
-        request, "marketplace/update_tracking.html", {"form": form, "item": item}
+        request,
+        "marketplace/update_tracking.html",
+        {"form": form, "item": item},
     )
 
 
 @login_required
 def vendor_dashboard(request):
+    """Render the vendor dashboard overview."""
     stores = Store.objects.filter(owner=request.user)
     products = Product.objects.filter(store__in=stores)
-    order_items = OrderItem.objects.filter(product__store__in=stores).select_related(
-        "order", "product"
-    )
+    order_items = OrderItem.objects.filter(
+        product__store__in=stores
+    ).select_related("order", "product")
     return render(
         request,
         "marketplace/vendor_dashboard.html",
-        {"stores": stores, "products": products, "order_items": order_items},
+        {
+            "stores": stores,
+            "products": products,
+            "order_items": order_items,
+        },
     )
 
 
 @login_required
 def update_shipment_tracking(request, item_id):
+    """Handle shipment status updates for vendor order items."""
     stores = Store.objects.filter(owner=request.user)
-    item = get_object_or_404(OrderItem, id=item_id, product__store__in=stores)
+    item = get_object_or_404(
+        OrderItem, id=item_id, product__store__in=stores
+    )
 
     if request.method == "POST":
         form = TrackingForm(request.POST, instance=item)
@@ -168,5 +204,7 @@ def update_shipment_tracking(request, item_id):
         form = TrackingForm(instance=item)
 
     return render(
-        request, "marketplace/update_tracking.html", {"form": form, "item": item}
+        request,
+        "marketplace/update_tracking.html",
+        {"form": form, "item": item},
     )
