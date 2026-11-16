@@ -17,7 +17,7 @@ Project Structure
 
 shopity_projectproper/
 │
-├── functions/                 # External integration helpers (e.g., Reddit feed)
+├── functions/                 # External integration helpers for Part 2 (e.g., Reddit feed)
 │   └── reddit.py
 │
 ├── marketplace/               # Core marketplace app
