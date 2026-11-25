@@ -25,21 +25,24 @@
             </thead>
             <tbody>
                 {% for item in order_items %}
+                    {% with status=item.order.status|upper %}
                     <tr>
                         <td class="fw-bold">#{{ item.order.pk }}</td>
                         <td>{{ item.order.user.username }}</td>
                         <td>{{ item.product.name }}</td>
                         <td>{{ item.quantity }}</td>
-                        <td>${% widthratio item.price 1 item.quantity %}</td>
+                        <td>R{% widthratio item.price 1 item.quantity %}</td>
                         <td>
-                            {% if item.order.status == 'pending' %}
+                            {% if status == 'PENDING' %}
                                 <span class="badge bg-warning text-dark">Pending</span>
-                            {% elif item.order.status == 'processing' %}
+                            {% elif status == 'PROCESSING' %}
                                 <span class="badge bg-info text-dark">Processing</span>
-                            {% elif item.order.status == 'completed' %}
+                            {% elif status == 'COMPLETED' %}
                                 <span class="badge bg-success">Completed</span>
-                            {% else %}
+                            {% elif status == 'CANCELLED' %}
                                 <span class="badge bg-danger">Cancelled</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ item.order.get_status_display|default:item.order.status }}</span>
                             {% endif %}
                         </td>
                         <td>{{ item.order.created_at|date:"M d, Y H:i" }}</td>
@@ -47,6 +50,7 @@
                             <a href="{% url 'vendor_order_detail' item.id %}" class="btn btn-sm btn-outline-primary">View / Update</a>
                         </td>
                     </tr>
+                    {% endwith %}
                 {% endfor %}
             </tbody>
         </table>

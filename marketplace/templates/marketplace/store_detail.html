@@ -1,4 +1,4 @@
-{% extends 'marketplace/base.html' %}
+{% extends 'base.html' %}
 
 {% block content %}
 <div class="container my-4">
@@ -6,24 +6,49 @@
         <div class="col-md-12">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">{{ store.name }}</li>
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'home' %}">Home</a>
+                    </li>
+                    <li
+                        class="breadcrumb-item active"
+                        aria-current="page"
+                    >
+                        {{ store.name }}
+                    </li>
                 </ol>
             </nav>
 
             <div class="card shadow-sm mb-4">
                 <div class="card-body">
-                    <h1 class="card-title text-primary">{{ store.name }}</h1>
-                    <p class="text-muted">Managed by: <strong>{{ store.owner.username }}</strong> | Created: {{ store.created_at|date:"F j, Y" }}</p>
+                    <h1 class="card-title text-primary">
+                        {{ store.name }}
+                    </h1>
+                    <p class="text-muted">
+                        Managed by:
+                        <strong>{{ store.owner.username }}</strong> |
+                        Created: {{ store.created_at|date:"F j, Y" }}
+                    </p>
                     <hr>
                     <h5>About the Store</h5>
-                    <p class="card-text">{{ store.description|default:"No description provided for this store yet." }}</p>
+                    <p class="card-text">
+                        {{ store.description|default:"No description provided for this store yet." }}
+                    </p>
 
                     {% if request.user == store.owner or request.user.is_staff %}
-                    <div class="mt-3">
-                        <a href="{% url 'store_edit' store.pk %}" class="btn btn-outline-secondary btn-sm">Edit Store</a>
-                        <a href="{% url 'store_delete' store.pk %}" class="btn btn-outline-danger btn-sm">Delete Store</a>
-                    </div>
+                        <div class="mt-3">
+                            <a
+                                href="{% url 'store_edit' store.pk %}"
+                                class="btn btn-outline-secondary btn-sm"
+                            >
+                                Edit Store
+                            </a>
+                            <a
+                                href="{% url 'store_delete' store.pk %}"
+                                class="btn btn-outline-danger btn-sm"
+                            >
+                                Delete Store
+                            </a>
+                        </div>
                     {% endif %}
                 </div>
             </div>
@@ -35,15 +60,45 @@
                         <div class="col">
                             <div class="card h-100 shadow-sm">
                                 {% if product.image %}
-                                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                                    <img
+                                        src="{{ product.image.url }}"
+                                        class="card-img-top"
+                                        alt="{{ product.name }}"
+                                        style="
+                                            height: 200px;
+                                            object-fit: cover;
+                                        "
+                                    >
                                 {% else %}
-                                    <div class="bg-light text-center py-5 text-muted" style="height: 200px;">No Image Available</div>
+                                    <div
+                                        class="bg-light text-center py-5 text-muted"
+                                        style="height: 200px;"
+                                    >
+                                        No Image Available
+                                    </div>
                                 {% endif %}
-                                <div class="card-body d-flex flex-column">
-                                    <h5 class="card-title">{{ product.name }}</h5>
-                                    <p class="card-text text-truncate">{{ product.description }}</p>
-                                    <p class="card-text fw-bold text-success mt-auto">R{{ product.base_price }}</p>
-                                    <a href="{% url 'product_detail' product.pk %}" class="btn btn-primary btn-sm mt-2">View Product</a>
+                                <div
+                                    class="card-body d-flex flex-column"
+                                >
+                                    <h5 class="card-title">
+                                        {{ product.name }}
+                                    </h5>
+                                    <p
+                                        class="card-text text-truncate"
+                                    >
+                                        {{ product.description }}
+                                    </p>
+                                    <p
+                                        class="card-text fw-bold text-success mt-auto"
+                                    >
+                                        R{{ product.base_price }}
+                                    </p>
+                                    <a
+                                        href="{% url 'product_detail' product.pk %}"
+                                        class="btn btn-primary btn-sm mt-2"
+                                    >
+                                        View Product
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -51,7 +106,8 @@
                 </div>
             {% else %}
                 <div class="alert alert-info" role="alert">
-                    This store hasn't posted any products yet. Check back soon!
+                    This store hasn't posted any products yet.
+                    Check back soon!
                 </div>
             {% endif %}
         </div>

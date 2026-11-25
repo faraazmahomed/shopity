@@ -1,34 +1,32 @@
-"""
-Tests for core marketplace models including stores,
-products, reviews, and carts.
-"""
+"""Tests for core marketplace models and relationships."""
 
-from django.test import TestCase
 from django.contrib.auth import get_user_model
+from django.test import TestCase
+
 from marketplace.models import (
-    Store,
-    Product,
     Cart,
     CartItem,
     Order,
     OrderItem,
+    Product,
     ProductReview,
+    Store,
 )
 
 User = get_user_model()
 
 
 class MarketplaceModelTests(TestCase):
-    """Test cases for core model creation, fields,
-    and relationships.
-    """
+    """Test cases for core model creation and relationships."""
 
     def setUp(self):
-        """Create baseline user, store, and product instances
-        using base_price.
-        """
-        self.user = User.objects.create_user(username="testuser", password="password")
-        self.store = Store.objects.create(name="Test Store", owner=self.user)
+        """Create baseline user, store, and product instances."""
+        self.user = User.objects.create_user(
+            username="testuser", password="password"
+        )
+        self.store = Store.objects.create(
+            name="Test Store", owner=self.user
+        )
         self.product = Product.objects.create(
             store=self.store,
             name="Test Product",
@@ -38,16 +36,12 @@ class MarketplaceModelTests(TestCase):
         )
 
     def test_store_creation(self):
-        """Verify store string representation and owner
-        attribution.
-        """
+        """Verify store string representation and ownership."""
         self.assertEqual(str(self.store), "Test Store")
         self.assertEqual(self.store.owner, self.user)
 
     def test_product_creation(self):
-        """Verify product attributes, base_price, and store
-        foreign key relationship.
-        """
+        """Verify product attributes and store relationship."""
         self.assertEqual(str(self.product), "Test Product")
         self.assertEqual(float(self.product.base_price), 99.99)
         self.assertEqual(self.product.store, self.store)
@@ -64,15 +58,20 @@ class MarketplaceModelTests(TestCase):
         self.assertEqual(review.user, self.user)
 
     def test_cart_and_order_creation(self):
-        """Verify cart, cart items, and order lifecycle
-        models.
-        """
+        """Verify cart, cart items, and order lifecycle models."""
         cart = Cart.objects.create(user=self.user)
-        cart_item = CartItem.objects.create(cart=cart, product=self.product, quantity=2)
+        cart_item = CartItem.objects.create(
+            cart=cart, product=self.product, quantity=2
+        )
         self.assertEqual(cart_item.quantity, 2)
 
-        order = Order.objects.create(user=self.user, status="pending")
+        order = Order.objects.create(
+            user=self.user, status="pending"
+        )
         order_item = OrderItem.objects.create(
-            order=order, product=self.product, quantity=2, price=99.99
+            order=order,
+            product=self.product,
+            quantity=2,
+            price=99.99,
         )
         self.assertEqual(float(order_item.price), 99.99)

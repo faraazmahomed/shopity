@@ -1,8 +1,7 @@
 """Marketplace Domain Models.
 
-Defines the relational data structures for vendor storefronts,
-product catalogs, customer reviews, shopping carts, and order
-processing workflows.
+Defines relational models for storefronts, products, reviews,
+shopping carts, orders, email queue entries, and reset tokens.
 """
 
 from datetime import timedelta
@@ -11,11 +10,13 @@ import secrets
 
 from django.conf import settings
 from django.db import models
+from django.db.models import Sum
+from django.db.models.functions import Coalesce
 from django.utils import timezone
 
 
 class Store(models.Model):
-    """Represents a merchant storefront managed by a registered user."""
+    """Merchant storefront managed by a registered user."""
 
     name = models.CharField(max_length=255, unique=True)
     description = models.TextField(blank=True, null=True)
@@ -27,11 +28,12 @@ class Store(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
+        """Return the store name."""
         return self.name
 
 
 class Product(models.Model):
-    """Represents an item listed within a vendor store catalog."""
+    """Item listed within a vendor store catalog."""
 
     store = models.ForeignKey(
         Store,
@@ -51,27 +53,48 @@ class Product(models.Model):
     is_published = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    @property
+    def available_stock(self):
+        """Return stock minus quantities in active/pending orders."""
+        reserved = (
+            self.orderitem_set.exclude(
+                order__status__iexact="cancelled"
+            )
+            .exclude(item_status__iexact="cancelled")
+            .exclude(order__status__iexact="completed")
+            .exclude(item_status__iexact="delivered")
+            .aggregate(total=Coalesce(Sum("quantity"), 0))
+            .get("total", 0)
+        )
+        return max(self.stock - reserved, 0)
+
     def __str__(self):
+        """Return the product name."""
         return self.name
 
 
 class ProductReview(models.Model):
-    """Stores customer feedback ratings and written comments."""
+    """Customer feedback ratings and written comments."""
 
     product = models.ForeignKey(
-        Product, on_delete=models.CASCADE, related_name="reviews"
+        Product,
+        on_delete=models.CASCADE,
+        related_name="reviews",
     )
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
     )
     rating = models.IntegerField(
-        choices=[(i, str(i)) for i in range(1, 6)], default=5
+        choices=[(i, str(i)) for i in range(1, 6)],
+        default=5,
     )
     comment = models.TextField()
     is_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
+        """Return summary string with reviewer and rating."""
         return (
             f"{self.user.username} - "
             f"{self.product.name} ({self.rating}★)"
@@ -89,6 +112,7 @@ class Cart(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
+        """Return cart label for the owning user."""
         return f"Cart for {self.user.username}"
 
 
@@ -96,7 +120,9 @@ class CartItem(models.Model):
     """Individual line item in a shopping cart."""
 
     cart = models.ForeignKey(
-        Cart, on_delete=models.CASCADE, related_name="items"
+        Cart,
+        on_delete=models.CASCADE,
+        related_name="items",
     )
     product = models.ForeignKey(
         Product, on_delete=models.CASCADE
@@ -104,6 +130,7 @@ class CartItem(models.Model):
     quantity = models.PositiveIntegerField(default=1)
 
     def __str__(self):
+        """Return quantity and product name."""
         return f"{self.quantity} x {self.product.name}"
 
 
@@ -116,7 +143,9 @@ class Order(models.Model):
         related_name="orders",
     )
     total_amount = models.DecimalField(
-        max_digits=10, decimal_places=2, default=0.00
+        max_digits=10,
+        decimal_places=2,
+        default=0.00,
     )
     status = models.CharField(
         max_length=20,
@@ -131,6 +160,7 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
+        """Return order ID and buyer username."""
         return f"Order #{self.pk} - {self.user.username}"
 
 
@@ -138,22 +168,30 @@ class OrderItem(models.Model):
     """Historical snapshot of a purchased product."""
 
     order = models.ForeignKey(
-        Order, on_delete=models.CASCADE, related_name="items"
+        Order,
+        on_delete=models.CASCADE,
+        related_name="items",
     )
     product = models.ForeignKey(
         Product, on_delete=models.CASCADE
     )
     store = models.ForeignKey(
-        Store, on_delete=models.CASCADE, null=True, blank=True
+        Store,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
     )
     quantity = models.PositiveIntegerField(default=1)
     price = models.DecimalField(
-        max_digits=10, decimal_places=2, default=0.00
+        max_digits=10,
+        decimal_places=2,
+        default=0.00,
     )
     unit_price = models.DecimalField(
-        max_digits=10, decimal_places=2, default=0.00
+        max_digits=10,
+        decimal_places=2,
+        default=0.00,
     )
-
     item_status = models.CharField(
         max_length=20,
         choices=[
@@ -174,6 +212,7 @@ class OrderItem(models.Model):
     )
 
     def __str__(self):
+        """Return item quantity, product, and order ID."""
         return (
             f"{self.quantity} x {self.product.name} "
             f"(Order #{self.order.pk})"
@@ -190,11 +229,14 @@ class EmailQueue(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Email to {self.to_email}: {self.subject}"
+        """Return recipient and email subject."""
+        return (
+            f"Email to {self.to_email}: {self.subject}"
+        )
 
 
 class ResetToken(models.Model):
-    """Stores secure time-limited tokens for password recovery."""
+    """Time-limited tokens for password recovery."""
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -208,6 +250,7 @@ class ResetToken(models.Model):
 
     @classmethod
     def generate_token(cls, user):
+        """Invalidate prior tokens and create a new token."""
         cls.objects.filter(
             user=user, is_used=False
         ).update(is_used=True)
@@ -226,4 +269,5 @@ class ResetToken(models.Model):
         return raw_token
 
     def __str__(self):
+        """Return token label for the target user."""
         return f"Reset Token for {self.user.username}"

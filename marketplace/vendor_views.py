@@ -1,24 +1,30 @@
-"""Vendor views for the Marketplace application."""
+"""Vendor views for managing products, orders, and tracking."""
 
-from django.shortcuts import (
-    render,
-    redirect,
-    get_object_or_404,
-)
 from django.contrib.auth.decorators import (
     login_required,
     permission_required,
 )
 from django.core.exceptions import PermissionDenied
-from .models import Store, Product, OrderItem
+from django.shortcuts import (
+    get_object_or_404,
+    redirect,
+    render,
+)
+
 from .forms import ProductForm, TrackingForm
+from .models import OrderItem, Product, Store
+from .utils import ensure_vendor_group_permissions
 
 
 @login_required
 def vendor_product_list(request):
     """Display products belonging to logged-in vendor stores."""
-    stores = Store.objects.filter(owner=request.user)
-    products = Product.objects.filter(store__in=stores)
+    stores = Store.objects.filter(
+        owner=request.user
+    ).order_by("id")
+    products = Product.objects.filter(
+        store__in=stores
+    ).select_related("store")
     return render(
         request,
         "marketplace/vendor_product_list.html",
@@ -32,22 +38,25 @@ def vendor_product_list(request):
 )
 def vendor_product_add(request):
     """Handle creation of a new product by a vendor."""
+    owned_stores = Store.objects.filter(
+        owner=request.user
+    ).order_by("id")
     if request.method == "POST":
         form = ProductForm(request.POST, request.FILES)
+        if "store" in form.fields:
+            form.fields["store"].queryset = owned_stores
         if form.is_valid():
             product = form.save(commit=False)
             if product.store.owner == request.user:
                 product.save()
                 return redirect("vendor_product_list")
-            else:
-                raise PermissionDenied(
-                    "You do not own this store."
-                )
+            raise PermissionDenied(
+                "You do not own this store."
+            )
     else:
         form = ProductForm()
-        form.fields["store"].queryset = (
-            Store.objects.filter(owner=request.user)
-        )
+        if "store" in form.fields:
+            form.fields["store"].queryset = owned_stores
 
     return render(
         request,
@@ -69,18 +78,27 @@ def vendor_product_edit(request, pk):
             "You do not have permission to edit this product."
         )
 
+    owned_stores = Store.objects.filter(
+        owner=request.user
+    ).order_by("id")
     if request.method == "POST":
         form = ProductForm(
             request.POST, request.FILES, instance=product
         )
+        if "store" in form.fields:
+            form.fields["store"].queryset = owned_stores
         if form.is_valid():
-            form.save()
+            updated = form.save(commit=False)
+            if updated.store.owner != request.user:
+                raise PermissionDenied(
+                    "You do not own this store."
+                )
+            updated.save()
             return redirect("vendor_product_list")
     else:
         form = ProductForm(instance=product)
-        form.fields["store"].queryset = (
-            Store.objects.filter(owner=request.user)
-        )
+        if "store" in form.fields:
+            form.fields["store"].queryset = owned_stores
 
     return render(
         request,
@@ -119,9 +137,7 @@ def vendor_order_list(request):
     stores = Store.objects.filter(owner=request.user)
     order_items = OrderItem.objects.filter(
         product__store__in=stores
-    ).select_related(
-        "order", "product", "product__store"
-    )
+    ).select_related("order", "product", "product__store")
     return render(
         request,
         "marketplace/vendor_order_list.html",
@@ -169,8 +185,13 @@ def update_order_item_status(request, pk):
 @login_required
 def vendor_dashboard(request):
     """Render the vendor dashboard overview."""
-    stores = Store.objects.filter(owner=request.user)
-    products = Product.objects.filter(store__in=stores)
+    ensure_vendor_group_permissions()
+    stores = Store.objects.filter(
+        owner=request.user
+    ).order_by("id")
+    products = Product.objects.filter(
+        store__in=stores
+    ).select_related("store")
     order_items = OrderItem.objects.filter(
         product__store__in=stores
     ).select_related("order", "product")

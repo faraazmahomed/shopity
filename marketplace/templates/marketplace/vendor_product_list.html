@@ -1,11 +1,23 @@
 {% extends 'base.html' %}
 
-{% block title %}Manage Products - {{ store.name }}{% endblock %}
+{% block title %}
+    Manage Products - Shopity Marketplace
+{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Manage Products for {{ store.name }}</h2>
-    <a href="{% url 'vendor_product_add' %}" class="btn btn-success">+ Add New Product</a>
+    <h2>
+        Manage Products
+        {% if stores|length == 1 %}
+            for {{ stores.0.name }}
+        {% endif %}
+    </h2>
+    <a
+        href="{% url 'vendor_product_add' %}"
+        class="btn btn-success"
+    >
+        + Add New Product
+    </a>
 </div>
 
 {% if products %}
@@ -15,6 +27,7 @@
                 <tr>
                     <th>Image</th>
                     <th>Title</th>
+                    <th>Store</th>
                     <th>Price</th>
                     <th>Stock</th>
                     <th>Status</th>
@@ -26,30 +39,60 @@
                     <tr>
                         <td>
                             {% if product.image %}
-                                <img src="{{ product.image.url }}" alt="{{ product.title }}" style="width: 50px; height: 50px; object-fit: cover;" class="rounded">
+                                <img
+                                    src="{{ product.image.url }}"
+                                    alt="{{ product.name }}"
+                                    style="
+                                        width: 50px;
+                                        height: 50px;
+                                        object-fit: cover;
+                                    "
+                                    class="rounded"
+                                >
                             {% else %}
-                                <span class="badge bg-secondary">No Image</span>
+                                <span class="badge bg-secondary">
+                                    No Image
+                                </span>
                             {% endif %}
                         </td>
-                        <td class="fw-bold">{{ product.title }}</td>
-                        <td>${{ product.price }}</td>
+                        <td class="fw-bold">{{ product.name }}</td>
+                        <td>{{ product.store.name }}</td>
+                        <td>R{{ product.base_price }}</td>
                         <td>
-                            {% if product.stock_quantity > 0 %}
-                                <span class="badge bg-info text-dark">{{ product.stock_quantity }} in stock</span>
+                            {% if product.stock > 0 %}
+                                <span class="badge bg-info text-dark">
+                                    {{ product.stock }} in stock
+                                </span>
                             {% else %}
-                                <span class="badge bg-danger">Out of stock</span>
+                                <span class="badge bg-danger">
+                                    Out of stock
+                                </span>
                             {% endif %}
                         </td>
                         <td>
                             {% if product.is_active %}
-                                <span class="badge bg-success">Active</span>
+                                <span class="badge bg-success">
+                                    Active
+                                </span>
                             {% else %}
-                                <span class="badge bg-secondary">Disabled</span>
+                                <span class="badge bg-secondary">
+                                    Disabled
+                                </span>
                             {% endif %}
                         </td>
                         <td class="text-end">
-                            <a href="{% url 'vendor_product_edit' product.id %}" class="btn btn-sm btn-outline-primary me-1">Edit</a>
-                            <a href="{% url 'vendor_product_delete' product.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                            <a
+                                href="{% url 'vendor_product_edit' product.pk %}"
+                                class="btn btn-sm btn-outline-primary me-1"
+                            >
+                                Edit
+                            </a>
+                            <a
+                                href="{% url 'vendor_product_delete' product.pk %}"
+                                class="btn btn-sm btn-outline-danger"
+                            >
+                                Delete
+                            </a>
                         </td>
                     </tr>
                 {% endfor %}
@@ -59,8 +102,13 @@
 {% else %}
     <div class="alert alert-info text-center py-4">
         <h4>No products found</h4>
-        <p>You haven't added any products to your store yet.</p>
-        <a href="{% url 'vendor_product_add' %}" class="btn btn-primary mt-2">Add Your First Product</a>
+        <p>You haven't added any products to your stores yet.</p>
+        <a
+            href="{% url 'vendor_product_add' %}"
+            class="btn btn-primary mt-2"
+        >
+            Add Your First Product
+        </a>
     </div>
 {% endif %}
 {% endblock %}

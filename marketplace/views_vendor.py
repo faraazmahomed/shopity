@@ -1,24 +1,24 @@
-"""
-Vendor views for managing store products, orders, and shipment tracking.
-"""
+"""Vendor views for managing store products, orders, and tracking."""
 
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import (
+    login_required,
+    permission_required,
+)
 from django.core.exceptions import PermissionDenied
-from .models import Store, Product, OrderItem
+from django.shortcuts import (
+    get_object_or_404,
+    redirect,
+    render,
+)
+
 from .forms import ProductForm, TrackingForm
+from .models import OrderItem, Product, Store
+from .utils import ensure_vendor_group_permissions
 
 
 @login_required
 def vendor_product_list(request):
-    """Display all products belonging to the logged-in vendor's stores.
-
-    Args:
-        request (HttpRequest): The incoming authenticated vendor request.
-
-    Returns:
-        HttpResponse: Rendered vendor product list template.
-    """
+    """Display all products across the vendor's stores."""
     stores = Store.objects.filter(owner=request.user)
     products = Product.objects.filter(store__in=stores)
     return render(
@@ -29,56 +29,42 @@ def vendor_product_list(request):
 
 
 @login_required
-@permission_required("marketplace.add_product", raise_exception=True)
+@permission_required(
+    "marketplace.add_product", raise_exception=True
+)
 def vendor_product_add(request):
-    """Handle creation of a new product within a vendor-owned store.
-
-    Args:
-        request (HttpRequest): The incoming HTTP request containing form data.
-
-    Returns:
-        HttpResponse: Rendered product form or redirect to product list.
-
-    Raises:
-        PermissionDenied: If the user attempts to add a product to a store
-            they do not own.
-    """
+    """Create a new product within a vendor-owned store."""
+    owned_stores = Store.objects.filter(owner=request.user)
     if request.method == "POST":
         form = ProductForm(request.POST, request.FILES)
+        if "store" in form.fields:
+            form.fields["store"].queryset = owned_stores
         if form.is_valid():
             product = form.save(commit=False)
             if product.store.owner == request.user:
                 product.save()
                 return redirect("vendor_product_list")
-            else:
-                raise PermissionDenied("You do not own this store.")
+            raise PermissionDenied(
+                "You do not own this store."
+            )
     else:
         form = ProductForm()
-        form.fields["store"].queryset = Store.objects.filter(
-            owner=request.user
-        )
+        if "store" in form.fields:
+            form.fields["store"].queryset = owned_stores
 
     return render(
-        request, "marketplace/vendor_product_form.html", {"form": form}
+        request,
+        "marketplace/vendor_product_form.html",
+        {"form": form},
     )
 
 
 @login_required
-@permission_required("marketplace.change_product", raise_exception=True)
+@permission_required(
+    "marketplace.change_product", raise_exception=True
+)
 def vendor_product_edit(request, pk):
-    """Handle editing an existing product within a vendor's store.
-
-    Args:
-        request (HttpRequest): The incoming HTTP request containing form data.
-        pk (int): Primary key of the Product to edit.
-
-    Returns:
-        HttpResponse: Rendered product form or redirect to product list.
-
-    Raises:
-        PermissionDenied: If the logged-in user does not own the product's
-            store.
-    """
+    """Edit an existing product within a vendor's store."""
     product = get_object_or_404(Product, pk=pk)
 
     if product.store.owner != request.user:
@@ -86,16 +72,25 @@ def vendor_product_edit(request, pk):
             "You do not have permission to edit this product."
         )
 
+    owned_stores = Store.objects.filter(owner=request.user)
     if request.method == "POST":
-        form = ProductForm(request.POST, request.FILES, instance=product)
+        form = ProductForm(
+            request.POST, request.FILES, instance=product
+        )
+        if "store" in form.fields:
+            form.fields["store"].queryset = owned_stores
         if form.is_valid():
-            form.save()
+            updated = form.save(commit=False)
+            if updated.store.owner != request.user:
+                raise PermissionDenied(
+                    "You do not own this store."
+                )
+            updated.save()
             return redirect("vendor_product_list")
     else:
         form = ProductForm(instance=product)
-        form.fields["store"].queryset = Store.objects.filter(
-            owner=request.user
-        )
+        if "store" in form.fields:
+            form.fields["store"].queryset = owned_stores
 
     return render(
         request,
@@ -105,21 +100,11 @@ def vendor_product_edit(request, pk):
 
 
 @login_required
-@permission_required("marketplace.delete_product", raise_exception=True)
+@permission_required(
+    "marketplace.delete_product", raise_exception=True
+)
 def vendor_product_delete(request, pk):
-    """Handle deletion of an existing product within a vendor's store.
-
-    Args:
-        request (HttpRequest): The incoming HTTP request.
-        pk (int): Primary key of the Product to delete.
-
-    Returns:
-        HttpResponse: Rendered delete confirmation or redirect to product list.
-
-    Raises:
-        PermissionDenied: If the logged-in user does not own the product's
-            store.
-    """
+    """Delete an existing product within a vendor's store."""
     product = get_object_or_404(Product, pk=pk)
 
     if product.store.owner != request.user:
@@ -140,14 +125,7 @@ def vendor_product_delete(request, pk):
 
 @login_required
 def vendor_order_list(request):
-    """Display order items associated with the logged-in vendor's stores.
-
-    Args:
-        request (HttpRequest): The incoming authenticated vendor request.
-
-    Returns:
-        HttpResponse: Rendered vendor order list template.
-    """
+    """Display order items for the logged-in vendor's stores."""
     stores = Store.objects.filter(owner=request.user)
     order_items = OrderItem.objects.filter(
         product__store__in=stores
@@ -161,17 +139,11 @@ def vendor_order_list(request):
 
 @login_required
 def vendor_order_detail(request, pk):
-    """Display detailed view for a specific order item in a vendor's store.
-
-    Args:
-        request (HttpRequest): The incoming HTTP request.
-        pk (int): Primary key of the OrderItem to inspect.
-
-    Returns:
-        HttpResponse: Rendered vendor order detail template.
-    """
+    """Display details for a specific vendor order item."""
     stores = Store.objects.filter(owner=request.user)
-    order_item = get_object_or_404(OrderItem, pk=pk, product__store__in=stores)
+    order_item = get_object_or_404(
+        OrderItem, pk=pk, product__store__in=stores
+    )
     return render(
         request,
         "marketplace/vendor_order_detail.html",
@@ -181,17 +153,11 @@ def vendor_order_detail(request, pk):
 
 @login_required
 def update_order_item_status(request, pk):
-    """Handle status and tracking updates for a specific order item.
-
-    Args:
-        request (HttpRequest): The incoming HTTP request with tracking data.
-        pk (int): Primary key of the OrderItem to update.
-
-    Returns:
-        HttpResponse: Rendered tracking form or redirect to vendor order list.
-    """
+    """Update status and tracking for a specific order item."""
     stores = Store.objects.filter(owner=request.user)
-    item = get_object_or_404(OrderItem, pk=pk, product__store__in=stores)
+    item = get_object_or_404(
+        OrderItem, pk=pk, product__store__in=stores
+    )
 
     if request.method == "POST":
         form = TrackingForm(request.POST, instance=item)
@@ -202,45 +168,45 @@ def update_order_item_status(request, pk):
         form = TrackingForm(instance=item)
 
     return render(
-        request, "marketplace/update_tracking.html", {"form": form, "item": item}
+        request,
+        "marketplace/update_tracking.html",
+        {"form": form, "item": item},
     )
 
 
 @login_required
 def vendor_dashboard(request):
-    """Display the vendor overview dashboard with stores, products, and orders.
-
-    Args:
-        request (HttpRequest): The incoming authenticated vendor request.
-
-    Returns:
-        HttpResponse: Rendered vendor dashboard template.
-    """
-    stores = Store.objects.filter(owner=request.user)
-    products = Product.objects.filter(store__in=stores)
+    """Display vendor overview with stores, products, and orders."""
+    ensure_vendor_group_permissions()
+    stores = Store.objects.filter(
+        owner=request.user
+    ).order_by("id")
+    products = (
+        Product.objects.filter(store__in=stores)
+        .select_related("store")
+        .prefetch_related("orderitem_set__order")
+    )
     order_items = OrderItem.objects.filter(
         product__store__in=stores
     ).select_related("order", "product")
     return render(
         request,
         "marketplace/vendor_dashboard.html",
-        {"stores": stores, "products": products, "order_items": order_items},
+        {
+            "stores": stores,
+            "products": products,
+            "order_items": order_items,
+        },
     )
 
 
 @login_required
 def update_shipment_tracking(request, item_id):
-    """Update carrier tracking details and mark an order item as shipped.
-
-    Args:
-        request (HttpRequest): The incoming HTTP request with tracking data.
-        item_id (int): Primary key of the OrderItem being shipped.
-
-    Returns:
-        HttpResponse: Rendered tracking form or redirect to vendor dashboard.
-    """
+    """Update tracking details and mark an order item shipped."""
     stores = Store.objects.filter(owner=request.user)
-    item = get_object_or_404(OrderItem, id=item_id, product__store__in=stores)
+    item = get_object_or_404(
+        OrderItem, id=item_id, product__store__in=stores
+    )
 
     if request.method == "POST":
         form = TrackingForm(request.POST, instance=item)
@@ -253,5 +219,7 @@ def update_shipment_tracking(request, item_id):
         form = TrackingForm(instance=item)
 
     return render(
-        request, "marketplace/update_tracking.html", {"form": form, "item": item}
+        request,
+        "marketplace/update_tracking.html",
+        {"form": form, "item": item},
     )

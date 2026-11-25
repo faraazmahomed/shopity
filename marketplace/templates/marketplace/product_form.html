@@ -1,22 +1,66 @@
 {% extends 'base.html' %}
 
-{% block title %}Add Product - Shopity Marketplace{% endblock %}
+{% block title %}
+    {% if product %}
+        Edit Product - Shopity Marketplace
+    {% else %}
+        Add Product - Shopity Marketplace
+    {% endif %}
+{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center mt-4">
     <div class="col-md-8 col-lg-6">
         <div class="card shadow-sm">
             <div class="card-body">
-                <h3 class="card-title text-center mb-4">Add Product Listing</h3>
-                
-                <form method="post" enctype="multipart/form-data" novalidate>
+                <h3 class="card-title text-center mb-4">
+                    {% if product %}
+                        Edit Product Listing
+                    {% else %}
+                        Add Product Listing
+                    {% endif %}
+                </h3>
+
+                {% if selected_store %}
+                    <p class="text-muted small text-center">
+                        Store: <strong>{{ selected_store.name }}</strong>
+                    </p>
+                {% endif %}
+
+                {% if product.image %}
+                    <div class="text-center mb-3">
+                        <img
+                            src="{{ product.image.url }}"
+                            alt="{{ product.name }}"
+                            class="img-thumbnail"
+                            style="max-height: 180px;"
+                        >
+                        <div class="small text-muted mt-1">Current image</div>
+                    </div>
+                {% endif %}
+
+                <form
+                    method="post"
+                    enctype="multipart/form-data"
+                    novalidate
+                >
                     {% csrf_token %}
-                    
+
                     {{ form.as_p }}
 
                     <div class="d-grid gap-2 mt-4">
-                        <button type="submit" class="btn btn-success">Save Product</button>
-                        <a href="{% url 'vendor_dashboard' %}" class="btn btn-outline-secondary">Back to Dashboard</a>
+                        <button
+                            type="submit"
+                            class="btn btn-success"
+                        >
+                            Save Product
+                        </button>
+                        <a
+                            href="{% url 'vendor_dashboard' %}"
+                            class="btn btn-outline-secondary"
+                        >
+                            Back to Dashboard
+                        </a>
                     </div>
                 </form>
             </div>

@@ -1,25 +1,26 @@
-"""
-Tests for the marketplace admin configuration and model registrations.
-"""
+"""Tests for marketplace admin configuration and registrations."""
 
-from django.test import TestCase
 from django.contrib.admin.sites import AdminSite
-from marketplace.models import Store, Product, Order
-from marketplace.admin import StoreAdmin, ProductAdmin, OrderAdmin
+from django.test import TestCase
+
+from marketplace.admin import OrderAdmin, ProductAdmin, StoreAdmin
+from marketplace.models import Order, Product, Store
 
 
 class MarketplaceAdminTests(TestCase):
-    """Test cases for verifying admin class display and search attributes."""
+    """Test cases for verifying admin display and search fields."""
 
     def setUp(self):
         """Initialize admin site instance for testing."""
         self.site = AdminSite()
 
     def test_store_admin_configuration(self):
-        """Verify StoreAdmin search fields include name and owner username."""
+        """Verify StoreAdmin search fields include name and owner."""
         admin_obj = StoreAdmin(Store, self.site)
         self.assertIn("name", admin_obj.search_fields)
-        self.assertIn("owner__username", admin_obj.search_fields)
+        self.assertIn(
+            "owner__username", admin_obj.search_fields
+        )
 
     def test_product_admin_configuration(self):
         """Verify ProductAdmin search fields include product name."""
@@ -27,6 +28,6 @@ class MarketplaceAdminTests(TestCase):
         self.assertIn("name", admin_obj.search_fields)
 
     def test_order_admin_configuration(self):
-        """Verify OrderAdmin list display fields include order status."""
+        """Verify OrderAdmin list display includes order status."""
         admin_obj = OrderAdmin(Order, self.site)
         self.assertIn("status", admin_obj.list_display)
