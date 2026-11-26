@@ -1,5 +1,7 @@
 """Tests for product variants and attributes."""
 
+from decimal import Decimal
+
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 
@@ -23,12 +25,13 @@ class ProductVariantTests(TestCase):
         self.product = Product.objects.create(
             store=self.store,
             name="Base Product",
-            base_price=19.99,
+            base_price=Decimal("19.99"),
             stock=15,
             is_active=True,
         )
 
     def test_product_creation(self):
         """Verify base product properties are saved properly."""
-        self.assertEqual(self.product.base_price, 19.99)
+        self.assertEqual(self.product.base_price, Decimal("19.99"))
+        self.assertEqual(self.product.stock, 15)
         self.assertTrue(self.product.is_active)

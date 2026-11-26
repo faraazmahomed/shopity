@@ -4,7 +4,13 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import Group, User
 
-from .models import OrderItem, Product, ProductReview, Store
+from .models import (
+    Order,
+    OrderItem,
+    Product,
+    ProductReview,
+    Store,
+)
 
 
 class RegisterForm(UserCreationForm):
@@ -127,7 +133,7 @@ class ProductReviewForm(forms.ModelForm):
 
 
 class TrackingForm(forms.ModelForm):
-    """Form for updating order status and carrier tracking."""
+    """Form for updating item fulfillment and tracking details."""
 
     class Meta:
         """Metadata configuration for TrackingForm."""
@@ -140,12 +146,27 @@ class TrackingForm(forms.ModelForm):
         )
         widgets = {
             "item_status": forms.Select(
-                attrs={"class": "form-control"}
+                attrs={"class": "form-select"}
             ),
             "carrier_name": forms.TextInput(
                 attrs={"class": "form-control"}
             ),
             "tracking_number": forms.TextInput(
                 attrs={"class": "form-control"}
+            ),
+        }
+
+
+class OrderStatusForm(forms.ModelForm):
+    """Form for updating the parent Order status."""
+
+    class Meta:
+        """Metadata configuration for OrderStatusForm."""
+
+        model = Order
+        fields = ("status",)
+        widgets = {
+            "status": forms.Select(
+                attrs={"class": "form-select"}
             ),
         }

@@ -20,6 +20,7 @@ class URLRoutingTests(SimpleTestCase):
     def test_cart_and_checkout_urls_resolve(self):
         """Test shopping cart and checkout action routes."""
         self.assertEqual(reverse("cart"), "/cart/")
+        self.assertEqual(reverse("cart_detail"), "/cart/")
         self.assertEqual(
             reverse("cart_add", kwargs={"product_id": 1}),
             "/cart/add/1/",
@@ -30,8 +31,8 @@ class URLRoutingTests(SimpleTestCase):
         )
         self.assertEqual(reverse("checkout"), "/checkout/")
 
-    def test_vendor_dashboard_and_crud_urls_resolve(self):
-        """Test vendor dashboard, store, and product routes."""
+    def test_vendor_dashboard_store_and_product_urls(self):
+        """Test consolidated vendor dashboard, store, and product URLs."""
         self.assertEqual(
             reverse("vendor_dashboard"), "/vendor/dashboard/"
         )
@@ -51,6 +52,20 @@ class URLRoutingTests(SimpleTestCase):
             "/vendor/store/1/delete/",
         )
         self.assertEqual(
+            reverse("vendor_product_list"), "/vendor/products/"
+        )
+        self.assertEqual(
+            reverse("vendor_product_add"), "/vendor/products/add/"
+        )
+        self.assertEqual(
+            reverse("vendor_product_edit", kwargs={"pk": 1}),
+            "/vendor/products/1/edit/",
+        )
+        self.assertEqual(
+            reverse("vendor_product_delete", kwargs={"pk": 1}),
+            "/vendor/products/1/delete/",
+        )
+        self.assertEqual(
             reverse("product_create"), "/vendor/product/create/"
         )
         self.assertEqual(
@@ -62,13 +77,14 @@ class URLRoutingTests(SimpleTestCase):
             "/vendor/product/1/delete/",
         )
 
-    def test_reviews_and_fulfillment_urls_resolve(self):
-        """Test review, fulfillment, and buyer dashboard routes."""
+    def test_orders_reviews_and_buyer_urls_resolve(self):
+        """Test vendor orders, reviews, and buyer routes."""
         self.assertEqual(
-            reverse(
-                "add_product_review", kwargs={"product_id": 1}
-            ),
-            "/product/1/review/",
+            reverse("vendor_order_list"), "/vendor/orders/"
+        )
+        self.assertEqual(
+            reverse("vendor_order_detail", kwargs={"pk": 1}),
+            "/vendor/orders/1/",
         )
         self.assertEqual(
             reverse(
@@ -78,5 +94,14 @@ class URLRoutingTests(SimpleTestCase):
             "/vendor/order-item/1/update/",
         )
         self.assertEqual(
+            reverse(
+                "add_product_review", kwargs={"product_id": 1}
+            ),
+            "/product/1/review/",
+        )
+        self.assertEqual(
             reverse("buyer_dashboard"), "/buyer/dashboard/"
+        )
+        self.assertEqual(
+            reverse("buyer_orders"), "/buyer/orders/"
         )

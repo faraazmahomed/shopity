@@ -1,16 +1,50 @@
 """Django settings for the shopity_projectproper project."""
 
+import os
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+from dotenv import load_dotenv
 
-SECRET_KEY = (
-    "django-insecure-your-secret-key-change-this-in-production"
+BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / ".env")
+
+
+def _env_bool(name, default=False):
+    """Parse a boolean environment variable safely."""
+    value = os.environ.get(name)
+    if value is None:
+        return default
+    return value.strip().lower() in (
+        "1",
+        "true",
+        "yes",
+        "on",
+    )
+
+
+def _env_list(name, default):
+    """Parse a comma-separated list from environment."""
+    raw = os.environ.get(name)
+    if raw is None or not raw.strip():
+        return list(default)
+    return [
+        item.strip()
+        for item in raw.split(",")
+        if item.strip()
+    ]
+
+
+SECRET_KEY = os.environ.get(
+    "DJANGO_SECRET_KEY",
+    "django-insecure-change-me-in-env",
 )
 
-DEBUG = True
+DEBUG = _env_bool("DJANGO_DEBUG", default=True)
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+ALLOWED_HOSTS = _env_list(
+    "DJANGO_ALLOWED_HOSTS",
+    ["127.0.0.1", "localhost"],
+)
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -89,12 +123,14 @@ WSGI_APPLICATION = "shopity_projectproper.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": "shopity_db",
-        "USER": "shopity_user",
-        "PASSWORD": "secure_password123",
-        "HOST": "127.0.0.1",
-        "PORT": "3306",
+        "ENGINE": os.environ.get(
+            "DB_ENGINE", "django.db.backends.mysql"
+        ),
+        "NAME": os.environ.get("DB_NAME", "shopity_db"),
+        "USER": os.environ.get("DB_USER", "shopity_user"),
+        "PASSWORD": os.environ.get("DB_PASSWORD", ""),
+        "HOST": os.environ.get("DB_HOST", "127.0.0.1"),
+        "PORT": os.environ.get("DB_PORT", "3306"),
     }
 }
 
@@ -127,17 +163,30 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "Africa/Johannesburg"
+TIME_ZONE = os.environ.get(
+    "DJANGO_TIME_ZONE", "Africa/Johannesburg"
+)
 
 USE_I18N = True
 
 USE_TZ = True
 
-EMAIL_BACKEND = (
-    "django.core.mail.backends.console.EmailBackend"
+EMAIL_BACKEND = os.environ.get(
+    "EMAIL_BACKEND",
+    "django.core.mail.backends.console.EmailBackend",
 )
-
-DEFAULT_FROM_EMAIL = "noreply@shopity.com"
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "")
+EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "587"))
+EMAIL_USE_TLS = _env_bool(
+    "EMAIL_USE_TLS", default=True
+)
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.environ.get(
+    "EMAIL_HOST_PASSWORD", ""
+)
+DEFAULT_FROM_EMAIL = os.environ.get(
+    "DEFAULT_FROM_EMAIL", "noreply@shopity.com"
+)
 
 STATIC_URL = "static/"
 
@@ -153,6 +202,10 @@ MEDIA_URL = "/media/"
 
 MEDIA_ROOT = BASE_DIR / "media"
 
-CSRF_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = _env_bool(
+    "CSRF_COOKIE_SECURE", default=False
+)
 
-SESSION_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = _env_bool(
+    "SESSION_COOKIE_SECURE", default=False
+)

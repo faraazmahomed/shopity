@@ -7,6 +7,31 @@ from . import views, views_admin, views_vendor
 
 urlpatterns = [
     path(
+        "vendor/dashboard/",
+        views_vendor.vendor_dashboard,
+        name="vendor_dashboard",
+    ),
+    path(
+        "vendor/store/create/",
+        views_vendor.store_create,
+        name="store_create",
+    ),
+    path(
+        "vendor/store/<int:pk>/",
+        views_vendor.store_detail,
+        name="store_detail",
+    ),
+    path(
+        "vendor/store/<int:pk>/edit/",
+        views_vendor.store_edit,
+        name="store_edit",
+    ),
+    path(
+        "vendor/store/<int:pk>/delete/",
+        views_vendor.store_delete,
+        name="store_delete",
+    ),
+    path(
         "vendor/products/",
         views_vendor.vendor_product_list,
         name="vendor_product_list",
@@ -17,14 +42,29 @@ urlpatterns = [
         name="vendor_product_add",
     ),
     path(
-        "vendor/products/<int:product_id>/edit/",
+        "vendor/products/<int:pk>/edit/",
         views_vendor.vendor_product_edit,
         name="vendor_product_edit",
     ),
     path(
-        "vendor/products/<int:product_id>/delete/",
+        "vendor/products/<int:pk>/delete/",
         views_vendor.vendor_product_delete,
         name="vendor_product_delete",
+    ),
+    path(
+        "vendor/product/create/",
+        views_vendor.vendor_product_add,
+        name="product_create",
+    ),
+    path(
+        "vendor/product/<int:pk>/edit/",
+        views_vendor.vendor_product_edit,
+        name="product_edit",
+    ),
+    path(
+        "vendor/product/<int:pk>/delete/",
+        views_vendor.vendor_product_delete,
+        name="product_delete",
     ),
     path(
         "vendor/orders/",
@@ -116,7 +156,6 @@ urlpatterns = [
         views.product_catalog,
         name="product_catalog",
     ),
-    
     path(
         "product/<int:pk>/",
         views.product_detail,
@@ -141,49 +180,9 @@ urlpatterns = [
     ),
     path("checkout/", views.checkout, name="checkout"),
     path(
-        "vendor/product/create/",
-        views.product_create,
-        name="product_create",
-    ),
-    path(
-        "vendor/product/<int:pk>/edit/",
-        views.product_edit,
-        name="product_edit",
-    ),
-    path(
-        "vendor/product/<int:pk>/delete/",
-        views.product_delete,
-        name="product_delete",
-    ),
-    path(
         "buyer/dashboard/",
         views.buyer_dashboard,
         name="buyer_dashboard",
     ),
     path("buyer/orders/", views.buyer_orders, name="buyer_orders"),
-    path(
-        "vendor/dashboard/",
-        views.vendor_dashboard,
-        name="vendor_dashboard",
-    ),
-    path(
-        "vendor/store/create/",
-        views.store_create,
-        name="store_create",
-    ),
-    path(
-        "vendor/store/<int:pk>/",
-        views.store_detail,
-        name="store_detail",
-    ),
-    path(
-        "vendor/store/<int:pk>/edit/",
-        views.store_edit,
-        name="store_edit",
-    ),
-    path(
-        "vendor/store/<int:pk>/delete/",
-        views.store_delete,
-        name="store_delete",
-    ),
 ]

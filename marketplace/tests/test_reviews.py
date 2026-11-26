@@ -21,7 +21,7 @@ class ProductReviewTests(TestCase):
     def setUp(self):
         """Initialize client, users, store, product, and order."""
         self.client = Client()
-        self.user = User.objects.create_user(
+        self.buyer = User.objects.create_user(
             username="buyeruser", password="password"
         )
         self.vendor = User.objects.create_user(
@@ -38,16 +38,15 @@ class ProductReviewTests(TestCase):
             is_active=True,
         )
         self.order = Order.objects.create(
-            user=self.user, status="COMPLETED"
+            user=self.buyer, status="COMPLETED"
         )
-        order_item = OrderItem.objects.create(
+        self.order_item = OrderItem.objects.create(
             order=self.order,
             product=self.product,
             quantity=1,
             price=29.99,
             item_status="DELIVERED",
         )
-        self.assertIsNotNone(order_item.pk)
 
     def test_verified_purchase_review(self):
         """Verify review sets is_verified True for buyers."""
@@ -65,6 +64,27 @@ class ProductReviewTests(TestCase):
         )
         self.assertEqual(response.status_code, 302)
         review = ProductReview.objects.get(
-            product=self.product
+            product=self.product, user=self.buyer
         )
         self.assertTrue(review.is_verified)
+
+    def test_vendor_cannot_review_own_store_product(self):
+        """Verify store owner is blocked from reviewing own item."""
+        self.client.login(
+            username="vendoruser", password="password"
+        )
+        response = self.client.post(
+            reverse(
+                "add_product_review", args=[self.product.pk]
+            ),
+            {
+                "rating": 4,
+                "comment": "Self review attempt",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(
+            ProductReview.objects.filter(
+                product=self.product, user=self.vendor
+            ).exists()
+        )

@@ -30,7 +30,7 @@ def ensure_vendor_group_permissions():
 def send_invoice_email_safely(order):
     """Send an order confirmation invoice email to the buyer.
 
-    Queues a pending EmailQueue entry if sending raises an error.
+    Queues a pending EmailQueue entry if sending fails.
     """
     customer = (
         getattr(order, "buyer", None)
@@ -48,8 +48,9 @@ def send_invoice_email_safely(order):
         f"Hello {username},\n\n"
         f"Thank you for your purchase!\n"
         f"Order ID: #{order.id}\n"
-        f"Total Amount: ${order.total_amount}\n\n"
-        f"We will notify you once your items are shipped."
+        f"Total Amount: R{order.total_amount}\n\n"
+        f"We will notify you once your items are "
+        f"shipped."
     )
 
     try:
@@ -60,11 +61,10 @@ def send_invoice_email_safely(order):
             recipient_list=[recipient],
             fail_silently=False,
         )
-    except Exception as exc:
+    except Exception:
         EmailQueue.objects.create(
-            recipient_email=recipient,
+            to_email=recipient,
             subject=subject,
-            body_text=body,
-            status=EmailQueue.Status.PENDING,
-            error_log=str(exc),
+            message=body,
+            is_sent=False,
         )

@@ -95,7 +95,7 @@ class MarketplaceViewTests(TestCase):
         )
 
     def test_vendor_dashboard_lists_all_stores(self):
-        """Verify vendor dashboard displays all owned stores."""
+        """Verify vendor dashboard displays stores and product links."""
         self.client.force_login(self.user)
         response = self.client.get(reverse("vendor_dashboard"))
         self.assertEqual(response.status_code, 200)
@@ -114,6 +114,19 @@ class MarketplaceViewTests(TestCase):
             reverse("store_delete", args=[self.store.pk]),
         )
         self.assertContains(response, reverse("store_create"))
+        self.assertContains(
+            response, reverse("vendor_product_list")
+        )
+        self.assertContains(
+            response,
+            reverse("vendor_product_edit", args=[self.product.pk]),
+        )
+        self.assertContains(
+            response,
+            reverse(
+                "vendor_product_delete", args=[self.product.pk]
+            ),
+        )
 
     def test_vendor_can_create_product_after_store(self):
         """Verify vendor can create product without 403 error."""
@@ -166,6 +179,43 @@ class MarketplaceViewTests(TestCase):
         )
         forbidden_delete = self.client.post(
             reverse("store_delete", args=[other_store.pk])
+        )
+        self.assertEqual(forbidden_edit.status_code, 404)
+        self.assertEqual(forbidden_delete.status_code, 404)
+
+    def test_vendor_product_edit_and_delete_scoped_to_owner(self):
+        """Verify vendors can edit/delete own products but not others."""
+        self.client.force_login(self.user)
+        edit_resp = self.client.post(
+            reverse("vendor_product_edit", args=[self.product.pk]),
+            {
+                "store": self.store.pk,
+                "name": "Updated Test Product",
+                "description": "Updated desc",
+                "base_price": "59.99",
+                "stock": 7,
+                "is_active": True,
+            },
+        )
+        self.assertEqual(edit_resp.status_code, 302)
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.name, "Updated Test Product")
+
+        other_store = Store.objects.create(
+            name="Other Store", owner=self.other_user
+        )
+        other_product = Product.objects.create(
+            store=other_store,
+            name="Other Product",
+            base_price=15.00,
+            stock=3,
+            is_active=True,
+        )
+        forbidden_edit = self.client.get(
+            reverse("vendor_product_edit", args=[other_product.pk])
+        )
+        forbidden_delete = self.client.post(
+            reverse("vendor_product_delete", args=[other_product.pk])
         )
         self.assertEqual(forbidden_edit.status_code, 404)
         self.assertEqual(forbidden_delete.status_code, 404)
